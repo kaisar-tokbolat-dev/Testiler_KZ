@@ -1,0 +1,1145 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/styles/styles.css">
+
+    <style>
+
+        /*Основное содержимое*/
+        #main {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+        }
+
+        /*Контейнер "Меню"*/
+        .profile-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        /*Меню профиля*/
+        .ul-profile-menu {
+            border-color: purple;
+            border-radius: 10px;
+            border-style: solid;
+            border-width: 5px;
+            height: fit-content;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            width: fit-content;
+        }
+
+            .ul-profile-menu li {
+                cursor: pointer;
+                padding: 10px 20px 10px 20px;
+                white-space: nowrap;
+            }
+
+                .ul-profile-menu li:hover {
+                    background: purple;
+                    transition: 0.25s;
+                }
+
+                .ul-profile-menu li:active {
+                    background: red;
+                }
+
+        /*Секция профиля*/
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            width: 90%;
+        }
+
+        .image-container {
+            --width: 20%;
+            width: var(--width);
+            min-width: var(--width);
+            max-width: var(--width);
+            height: 100px;
+        }
+
+            .image-container img {
+                width: 100%;
+                height: 100%;
+                border-radius: 10px;
+                object-fit: cover;
+            }
+
+        .test-collection {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .test {
+            border-color: purple;
+            border-width: 2px;
+            border-style: dashed;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+            .test .test-labels {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                width: 45%;
+            }
+
+            .test .order {
+                display: inline-flex;
+                min-width: 5%;
+                font-size: 16pt;
+                justify-content: center;
+            }
+
+            .test .title {
+                font-size: 20pt;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: inline-block;
+                width: 100%;
+            }
+
+            .test label {
+                text-align: left;
+            }
+
+            .test:hover {
+                background: #2B1354;
+                transition: 0.25s;
+            }
+
+            .test .buttons {
+                width: 40%;
+            }
+    </style>
+</head>
+<body>
+
+    <!--Шапка сайта-->
+    <div id="header"></div>
+
+    <!--Основное содержание-->
+    <div id="main"></div>
+
+    <script src="/js/main.js"></script>
+
+    <!--Скрипт загрузки контента-->
+    <script>
+
+        // Загрузка контента
+        async function setContent() {
+            // Получить язык
+            const lang = await getSelectedLanguage();
+
+            // Назначить полученный язык
+            localStorage.setItem('lang', lang);
+
+            // Получить имя пользователя
+            const username = await getUsername();
+
+            // Шапка сайта
+            const div_header = document.getElementById("header");
+
+            // Ссылка на главную страницу
+            div_header.appendChild(getLinkToMainPage());
+
+            // Кнопки
+            const div_buttons = document.createElement("div");
+            div_buttons.className = "buttons";
+            div_header.appendChild(div_buttons);
+
+            // Кнопка "Создать тест"
+            const button_create_test = document.createElement("button");
+            button_create_test.textContent = data[lang]?.createTest ?? "";
+            button_create_test.addEventListener("click", () => {
+                window.location.href = "/create-test";
+            });
+            div_buttons.appendChild(button_create_test);
+
+            // Меню личного аккаунта
+            const button_username = document.createElement("button");
+            button_username.textContent = username;
+            button_username.disabled = true;
+            div_buttons.appendChild(button_username);
+
+            // Основной контент
+            const main_content = document.getElementById("main");
+
+            // Контейнер "Меню"
+            const div_profile_menu = document.createElement("div");
+            div_profile_menu.className = "profile-menu";
+            main_content.appendChild(div_profile_menu);
+
+            // Заголовок меню профиля
+            const label_profile_menu_title = document.createElement("div");
+            label_profile_menu_title.className = "title";
+            div_profile_menu.appendChild(label_profile_menu_title);
+
+            // Секция профиля
+            const profile_section = document.createElement("div");
+            profile_section.className = "profile-section";
+            main_content.appendChild(profile_section);
+
+            // Загрузка меню профиля и секции
+            document.startViewTransition(() => {
+                // Загрузка меню профиля
+                loadProfileMenu();
+
+                // Загрузка секции
+                loadSection();
+            });
+
+            // Загрузка меню профиля
+            function loadProfileMenu() {
+                // Меню профиля
+                const ul_profile_menu = document.createElement("ul");
+                ul_profile_menu.id = "profile-menu";
+                ul_profile_menu.className = "ul-profile-menu";
+                div_profile_menu.appendChild(ul_profile_menu);
+
+                // Заголовок меню профиля
+                label_profile_menu_title.textContent = data[lang]?.menuTitle.toUpperCase() ?? "";
+
+                // Элементы меню профиля
+
+                user_menu_elements.forEach(x => {
+                    const li_menu_element = document.createElement("li");
+                    li_menu_element.id = x;
+                    li_menu_element.textContent = data[lang][x] ?? "";
+                    li_menu_element.addEventListener("click", async () => {
+                        // Создать тест
+                        if (x === "create-test") {
+                            window.location.href = "/create-test";
+                        }
+                        // Выход
+                        else if (x === "log-out") {
+                            if (event.target && event.target.id === "log-out") {
+                                const modal = dialogLogOut(lang);
+                                document.body.appendChild(modal);
+                                document.startViewTransition(() => modal.showModal());
+                            }
+                        }
+                        // Остальные страницы меню
+                        else {
+                            window.location.href = "/account/" + x;
+                        }
+                    });
+                    ul_profile_menu.appendChild(li_menu_element);
+                });
+            }
+
+            // Загрузка выбранной секции
+            function loadSection() {
+                // Загрузка списков меню
+                const menu_elements = Array.from(document.getElementById("profile-menu").children);
+
+                // Текущая секция
+                const section = window.location.pathname.split("/").pop();
+
+                // Мои тесты
+                if (section.startsWith("my-tests")) {
+                    console.log(window.location.href);
+                    const limitValue = new URLSearchParams(window.location.search).get('limit');
+                    console.log(limitValue);
+                    if (limitValue) {
+                        const limit = Number.parseInt(limitValue);
+                        loadMyTests(limit);
+                    }
+                    else {
+                        loadMyTests();
+                    }
+                }
+                // История тестов
+                else if (section.startsWith("test-history")) {
+                    const limitValue = new URLSearchParams(window.location.search).get('limit');
+                    console.log(limitValue);
+                    if (limitValue) {
+                        const limit = Number.parseInt(limitValue);
+                        loadTestHistory(limit);
+                    }
+                    else {
+                        loadTestHistory();
+                    }
+                }
+                // Личные данные
+                else if (section === "personal-data") {
+                    loadInfo();
+                }
+                // Параметры
+                else if (section === "parameters") {
+                    loadParameters();
+                }
+                // Цвет фона
+                menu_elements.find(x => x.id === section).style = "background: purple;";
+            }
+
+            // Секция профиля "Мои тесты"
+            async function loadMyTests(limit = 1) {
+                // Заголовок секции профиля
+                const label_profile_section_title = document.createElement("div");
+                label_profile_section_title.className = "title";
+                label_profile_section_title.textContent = data[lang]["my-tests"].toUpperCase() ?? "";
+                profile_section.appendChild(label_profile_section_title);
+
+                // Получить тесты пользователя
+                try {
+                    // Запрос
+                    const response = await fetch(`/api/user-tests?limit=${limit}`);
+
+                    // Получить тесты
+                    if (response.ok) {
+                        // Тесты пользователя
+                        const result = await response.json();
+                        const user_tests = result.tests;
+                        console.log(user_tests);
+
+                        // Отобразить тесты
+                        if (user_tests.length > 0) {
+                            // Тесты
+                            const div_test_collection = document.createElement("div");
+                            div_test_collection.className = "test-collection";
+                            profile_section.appendChild(div_test_collection);
+
+                            // Отобразить тесты
+                            user_tests.forEach((test) => {
+                                // Тест
+                                const div_test = document.createElement("div");
+                                div_test.className = "test";
+                                div_test_collection.appendChild(div_test);
+
+                                // СОДЕРЖИМОЕ КОНТЕЙНЕРА ТЕСТА
+                                // Порядковый номер
+                                const label_order = document.createElement("label");
+                                label_order.className = "order";
+                                label_order.textContent = test.order;
+                                div_test.appendChild(label_order);
+
+                                // Контейнер изображения
+                                const div_image_container = document.createElement("div");
+                                div_image_container.className = "image-container";
+                                div_test.appendChild(div_image_container);
+                                // Изображение
+                                const image = document.createElement("img");
+                                image.src = `/api/test-image/${test.imageFileName}`;
+                                div_image_container.appendChild(image);
+
+                                // НАДПИСИ
+                                const div_test_labels = document.createElement("test-labels");
+                                div_test_labels.className = "test-labels";
+                                div_test.appendChild(div_test_labels);
+                                // Заголовок теста
+                                const label_title = document.createElement("label");
+                                label_title.textContent = test.title;
+                                label_title.className = "title";
+                                div_test_labels.appendChild(label_title);
+                                // Дата создания
+                                const label_date = document.createElement("label");
+                                label_date.className = "small";
+                                label_date.textContent = `${data[lang]?.createdDateTime ?? ""}: ${getDate(test.createdDateTime)}`;
+                                div_test_labels.appendChild(label_date);
+
+                                // КОНТЕЙНЕР СТАТУСА
+                                const div_status = document.createElement("div");
+                                div_status.style = "display: flex; flex-direction: row; gap: 5px; align-items: center;";
+                                div_test_labels.appendChild(div_status);
+                                // Иконка статуса "Проверен"
+                                if (test.status.toLowerCase() === "checked") {
+                                    const icon_checked = document.createElement("i");
+                                    icon_checked.className = "animation fa-regular fa-circle-check fa-bounce";
+                                    icon_checked.style = "color: green;";
+                                    div_status.appendChild(icon_checked);
+                                }
+                                // Иконка статуса "Не завершен"
+                                else if (test.status.toLowerCase() === "unfinished") {
+                                    const icon_unfinished = document.createElement("i");
+                                    icon_unfinished.className = "animation fa-solid fa-triangle-exclamation";
+                                    icon_unfinished.style = "color: orange;";
+                                    div_status.appendChild(icon_unfinished);
+                                }    
+                                // Иконка статуса "Отклонен"
+                                else if (test.status.toLowerCase() === "rejected") {
+                                    const icon_rejected = document.createElement("i");
+                                    icon_rejected.className = "animation fa-regular fa-circle-xmark fa-bounce";
+                                    icon_rejected.style = "color: red;";
+                                    div_status.appendChild(icon_rejected);
+                                }
+                                // Статус
+                                const label_status = document.createElement("label");
+                                label_status.className = "small";
+                                label_status.textContent = `${data[lang]?.[test.status.toLowerCase()] ?? test.status}`;
+                                div_status.appendChild(label_status);
+
+                                // Кнопки
+                                const div_buttons = document.createElement("div");
+                                div_buttons.className = "buttons";
+                                div_buttons.style = "justify-content: flex-end;";
+                                div_test.appendChild(div_buttons);
+
+                                // Отобразить кнопку "Открыть", если тест опубликован / проверен
+                                if (["published", "checked"].includes(test.status.toLowerCase())) {
+                                    const button_open_test = document.createElement("div");
+                                    button_open_test.className = "icon-open fa-solid fa-book-open fa-2x";
+                                    button_open_test.addEventListener("click", () => {
+                                        try {
+                                            window.location.href = `/info?testId=${test.id}`;
+                                        }
+                                        catch (error) {
+                                            showMessageBox(error.message);
+                                        }
+                                    });
+                                    div_buttons.appendChild(button_open_test);
+                                }
+
+                                // Отобразить кнопку "Продолжить", если тест является незавершенным / отклоненным
+                                if (["unfinished", "rejected"].includes(test.status.toLowerCase())) {
+                                    // Кнопка "Продолжить"
+                                    const button_continue_creating_test = document.createElement("div");
+                                    button_continue_creating_test.className = "icon-edit fa-solid fa-pen-to-square fa-2x";
+                                    button_continue_creating_test.addEventListener("click", async () => {
+                                        window.location.href = `/create-test?testId=${test.id}`;
+                                    });
+                                    div_buttons.appendChild(button_continue_creating_test);
+                                }
+
+                                // Кнопка "Удалить"
+                                const button_delete_test = document.createElement("div");
+                                button_delete_test.className = "icon-delete fa-solid fa-trash-can fa-2x";
+                                button_delete_test.addEventListener("click", () => {
+                                    const modal = document.createElement("dialog");
+                                    modal.innerHTML = `
+                                        <!--Основной контент-->
+                                        <div class="content">
+                                            <!--Заголовок-->
+                                            <label>${data[lang]?.deleteTestQuestion ?? ""}</label>
+
+                                            <!--Кнопки-->
+                                            <div class="buttons">
+                                                <!--Кнопка "Да"-->
+                                                <button id="button-confirm">${data[lang]?.yes ?? ""}</button>
+
+                                                <!--Кнопка "Нет"-->
+                                                <button id="button-decline">${data[lang]?.no ?? ""}</button>
+                                            </div>
+                                        </div>
+                                    `;
+
+                                    // Удаление окна из DOM
+                                    modal.addEventListener("close", () => {
+                                        document.startViewTransition(() => {
+                                            modal.remove();
+                                        });
+                                    });
+
+                                    // Назначение кнопок
+                                    modal.addEventListener("click", async (event) => {
+                                        // Да
+                                        if (event.target && event.target.id === "button-confirm") {
+                                            try {
+                                                // Запрос на удаление теста
+                                                const response = await fetch(`/api/delete-test?testId=${test.id}`, {
+                                                    method: "POST"
+                                                });
+
+                                                // Закрыть модальное окно
+                                                document.startViewTransition(() => modal.close());
+
+                                                // Успешное удаление
+                                                if (response.ok) {
+                                                    document.startViewTransition(async () => {
+                                                        showMessageBox(data[lang]?.testDeletedSuccess ?? "", "success")
+                                                        profile_section.innerHTML = "";
+                                                        await loadMyTests();
+                                                    });
+                                                }
+                                                // Сообщение об ошибке
+                                                else {
+                                                    const message = await response.text();
+                                                    throw new Error(message);
+                                                }
+                                            }
+                                            catch (error) {
+                                                document.startViewTransition(() => {
+                                                    showMessageBox(error.message, "error")
+                                                });
+                                            }
+                                        }
+                                        // Нет
+                                        else if (event.target && event.target.id === "button-decline") {
+                                            document.startViewTransition(() => modal.close());
+                                        }
+                                    });
+                                    document.body.appendChild(modal);
+                                    document.startViewTransition(() => modal.showModal());
+                                });
+                                div_buttons.appendChild(button_delete_test);
+                            });
+
+                            console.log(result);
+
+                            // Количество тестов
+                            const label_test_count = document.createElement("label");
+                            label_test_count.textContent = `${data[lang]?.totalTestCount ?? ""}: ${result.totalCount}`;
+                            label_test_count.className = "medium";
+                            label_test_count.style = "text-align: right;";
+                            profile_section.appendChild(label_test_count);
+
+                            // КНОПКИ ДЛЯ ПАГИНАЦИИ
+                            const div_pagination = document.createElement("div");
+                            div_pagination.className = "buttons";
+                            div_pagination.style = "justify-content: flex-end;";
+                            profile_section.appendChild(div_pagination);
+
+                            // Отобразить кнопку "Назад"
+                            if (result.back) {
+                                // Кнопка "Назад"
+                                const button_back = document.createElement("button");
+                                button_back.className = "small";
+                                button_back.style = "width: 20%;";
+                                button_back.addEventListener("click", () => {
+                                    window.location.href = `/account/my-tests?limit=${limit -= 1}`;
+                                });
+                                div_pagination.appendChild(button_back);
+                                // Иконка кнопки "Назад"
+                                const icon_back = document.createElement("i");
+                                icon_back.className = "fa-solid fa-circle-chevron-left";
+                                button_back.appendChild(icon_back);
+                                // Текст кнопки "Назад"
+                                button_back.appendChild(document.createTextNode(data[lang]?.back.toUpperCase() ?? ""));
+                            }
+
+                            // Кнопка "Далее"
+                            const button_next = document.createElement("button");
+                            button_next.textContent = data[lang]?.next.toUpperCase() ?? "";
+                            button_next.className = "small";
+                            button_next.style = "width: 20%;";
+                            div_pagination.appendChild(button_next);
+                            // Иконка кнопки "Далее"
+                            const icon_next = document.createElement("i");
+                            icon_next.className = "fa-solid fa-circle-chevron-right";
+                            button_next.appendChild(icon_next);
+
+                            // Кнопка "Далее"
+                            if (result.next) {
+                                button_next.addEventListener("click", () => {
+                                    window.location.href = `/account/my-tests?limit=${limit += 1}`;
+                                });
+                            }
+                            else {
+                                button_next.disabled = true;
+                            }
+                        }
+
+                        // Если отсутствуют тесты
+                        else {
+                            // Сообщение
+                            const div_inline_message = getInlineMessage(data[lang]?.emptyTests ?? "");
+                            profile_section.appendChild(div_inline_message);
+                        }
+                    }
+
+                    // Сообщение об ошибке
+                    else {
+                        const message = await response.text();
+                        throw new Error(message);
+                    }
+                }
+                catch (error) {
+                    showMessageBox(data[lang]?.error ?? error, "error");
+                }
+            }
+
+            // Секция профиля "История тестов"
+            async function loadTestHistory(limit = 1) {
+                // Заголовок секции профиля
+                const label_profile_section_title = document.createElement("div");
+                label_profile_section_title.className = "title";
+                label_profile_section_title.textContent = data[lang]["test-history"].toUpperCase() ?? "";
+                profile_section.appendChild(label_profile_section_title);
+
+                // Получить историю тестов
+                try {
+                    // Запрос
+                    const response = await fetch(`/api/test-histories?limit=${limit}`);
+
+                    // Получить тесты
+                    if (response.ok) {
+                        // История тестов
+                        const result = await response.json();
+                        const user_tests = result.tests;
+                        console.log(user_tests);
+
+                        // Отобразить тесты
+                        if (user_tests.length > 0) {
+                            // Тесты
+                            const div_test_collection = document.createElement("div");
+                            div_test_collection.className = "test-collection";
+                            profile_section.appendChild(div_test_collection);
+
+                            // Отобразить тесты
+                            user_tests.forEach((test) => {
+                                // Тест
+                                const div_test = document.createElement("div");
+                                div_test.className = "test";
+                                div_test_collection.appendChild(div_test);
+
+                                // СОДЕРЖИМОЕ КОНТЕЙНЕРА ТЕСТА
+                                // Порядковый номер
+                                const label_order = document.createElement("label");
+                                label_order.className = "order";
+                                label_order.textContent = test.order;
+                                div_test.appendChild(label_order);
+
+                                // Контейнер изображения
+                                const div_image_container = document.createElement("div");
+                                div_image_container.className = "image-container";
+                                div_test.appendChild(div_image_container);
+                                // Изображение
+                                const image = document.createElement("img");
+                                image.src = `/api/test-image/${test.imageFileName}`;
+                                div_image_container.appendChild(image);
+
+                                // НАДПИСИ
+                                const div_test_labels = document.createElement("test-labels");
+                                div_test_labels.className = "test-labels";
+                                div_test.appendChild(div_test_labels);
+                                // Заголовок теста
+                                const label_title = document.createElement("label");
+                                label_title.textContent = test.title;
+                                label_title.className = "title";
+                                div_test_labels.appendChild(label_title);
+                                // Дата прохождения теста
+                                const label_date = document.createElement("label");
+                                label_date.className = "small";
+                                label_date.textContent = `${data[lang]?.takedDateTime ?? ""}: ${getDate(test.takedDateTime)}`;
+                                div_test_labels.appendChild(label_date);
+
+                                // Результаты
+                                const label_result = document.createElement("label");
+                                label_result.className = "small";
+                                label_result.textContent = `${data[lang]?.testResult ?? ""}: ${getTestResults(test)}%`;
+                                div_test_labels.appendChild(label_result);
+
+                                // КНОПКИ
+                                const div_buttons = document.createElement("div");
+                                div_buttons.className = "buttons";
+                                div_buttons.style = "justify-content: flex-end;";
+                                div_test.appendChild(div_buttons);
+
+                                // Открыть тест
+                                const button_open_test = document.createElement("div");
+                                button_open_test.className = "icon-open fa-solid fa-book-open fa-2x";
+                                button_open_test.addEventListener("click", () => {
+                                    try {
+                                        window.location.href = `/info?testId=${test.testId}`;
+                                    }
+                                    catch (error) {
+                                        showMessageBox(error.message);
+                                    }
+                                });
+                                div_buttons.appendChild(button_open_test);
+
+                                // Открыть историю теста
+                                const button_open_test_history = document.createElement("div");
+                                button_open_test_history.className = "icon-open fa-solid fa-magnifying-glass-chart fa-2x";
+                                button_open_test_history.addEventListener("click", () => {
+                                    try {
+                                        window.location.href = `/test-history?testHistoryId=${test.id}`;
+                                    }
+                                    catch (error) {
+                                        showMessageBox(error.message);
+                                    }
+                                });
+                                div_buttons.appendChild(button_open_test_history);
+
+                                // Кнопка "Удалить"
+                                const button_delete_test = document.createElement("div");
+                                button_delete_test.className = "icon-delete fa-solid fa-trash-can fa-2x";
+                                button_delete_test.addEventListener("click", () => {
+                                    const modal = document.createElement("dialog");
+                                    modal.innerHTML = `
+                                         <!--Основной контент-->
+                                         <div class="content">
+                                             <!--Заголовок-->
+                                             <label>${data[lang]?.deleteTestHistory ?? ""}</label>
+
+                                             <!--Кнопки-->
+                                             <div class="buttons">
+                                                 <!--Кнопка "Да"-->
+                                                 <button id="button-confirm">${data[lang]?.yes ?? ""}</button>
+
+                                                 <!--Кнопка "Нет"-->
+                                                 <button id="button-decline">${data[lang]?.no ?? ""}</button>
+                                             </div>
+                                         </div>
+                                     `;
+
+                                    // Удаление окна из DOM
+                                    modal.addEventListener("close", () => {
+                                        document.startViewTransition(() => {
+                                            modal.remove();
+                                        });
+                                    });
+
+                                    // Назначение кнопок
+                                    modal.addEventListener("click", async (event) => {
+                                        // Да
+                                        if (event.target && event.target.id === "button-confirm") {
+                                            try {
+                                                // Запрос на удаление теста
+                                                const response = await fetch(`/api/delete-test-history?testHistoryId=${test.id}`, {
+                                                    method: "POST"
+                                                });
+
+                                                // Закрыть модальное окно
+                                                document.startViewTransition(() => modal.close());
+
+                                                // Успешное удаление
+                                                if (response.ok) {
+                                                    document.startViewTransition(async () => {
+                                                        showMessageBox(data[lang]?.testHistoryDeletedSuccess ?? "", "success")
+                                                        profile_section.innerHTML = "";
+                                                        await loadTestHistory();
+                                                    });
+                                                }
+                                                // Сообщение об ошибке
+                                                else {
+                                                    const message = await response.text();
+                                                    throw new Error(message);
+                                                }
+                                            }
+                                            catch (error) {
+                                                document.startViewTransition(() => {
+                                                    showMessageBox(error.message, "error")
+                                                });
+                                            }
+                                        }
+                                        // Нет
+                                        else if (event.target && event.target.id === "button-decline") {
+                                            document.startViewTransition(() => modal.close());
+                                        }
+                                    });
+                                    document.body.appendChild(modal);
+                                    document.startViewTransition(() => modal.showModal());
+                                });
+                                div_buttons.appendChild(button_delete_test);
+                            });
+                            console.log(result);
+
+                            // Количество тестов
+                            const label_test_count = document.createElement("label");
+                            label_test_count.textContent = `${data[lang]?.totalTestCount ?? ""}: ${result.totalCount}`;
+                            label_test_count.className = "medium";
+                            label_test_count.style = "text-align: right;";
+                            profile_section.appendChild(label_test_count);
+
+                            // КНОПКИ ДЛЯ ПАГИНАЦИИ
+                            const div_pagination = document.createElement("div");
+                            div_pagination.className = "buttons";
+                            div_pagination.style = "justify-content: flex-end;";
+                            profile_section.appendChild(div_pagination);
+
+                            // Отобразить кнопку "Назад"
+                            if (result.back) {
+                                // Кнопка "Назад"
+                                const button_back = document.createElement("button");
+                                button_back.className = "small";
+                                button_back.style = "width: 20%;";
+                                button_back.addEventListener("click", () => {
+                                    window.location.href = `/account/test-history?limit=${limit -= 1}`;
+                                });
+                                div_pagination.appendChild(button_back);
+                                // Иконка кнопки "Назад"
+                                const icon_back = document.createElement("i");
+                                icon_back.className = "fa-solid fa-circle-chevron-left";
+                                button_back.appendChild(icon_back);
+                                // Текст кнопки "Назад"
+                                button_back.appendChild(document.createTextNode(data[lang]?.back.toUpperCase() ?? ""));
+                            }
+
+                            // Кнопка "Далее"
+                            const button_next = document.createElement("button");
+                            button_next.textContent = data[lang]?.next.toUpperCase() ?? "";
+                            button_next.className = "small";
+                            button_next.style = "width: 20%;";
+                            div_pagination.appendChild(button_next);
+                            // Иконка кнопки "Далее"
+                            const icon_next = document.createElement("i");
+                            icon_next.className = "fa-solid fa-circle-chevron-right";
+                            button_next.appendChild(icon_next);
+
+                            // Кнопка "Далее"
+                            if (result.next) {
+                                button_next.addEventListener("click", () => {
+                                    window.location.href = `/account/test-history?limit=${limit += 1}`;
+                                });
+                            }
+                            else {
+                                button_next.disabled = true;
+                            }
+                        }
+
+                        // Если отсутствуют тесты
+                        else {
+                            // Сообщение
+                            const div_inline_message = getInlineMessage(data[lang]?.emptyTestHistory ?? "");
+                            profile_section.appendChild(div_inline_message);
+                        }
+                    }
+
+                    // Сообщение об ошибке
+                    else {
+                        const message = await response.text();
+                        throw new Error(message);
+                    }
+                }
+                catch (error) {
+                    showMessageBox(data[lang]?.[error.message] ?? [error.message], "error");
+                }
+            }
+
+            // Секция профиля "Личные данные"
+            async function loadInfo() {
+                // Получить имя пользователя
+                const response = await fetch("/api/username");
+                const account = await response.json();
+
+                profile_section.innerHTML = `
+                    <!--Заголовок секции профиля-->
+                    <label class="title">${data[lang]["personal-data"].toUpperCase() ?? ""}</label>
+
+                    <!--Строка данных "Имя"-->
+                    <div class="info-row">
+                        <!--Название строки данных-->
+                        <div class="info-row-label">
+                            <div class="fa-solid fa-id-badge"></div>
+                            <label>${data[lang]?.username ?? ""}</label>
+                        </div>
+                        <div id="username" class="info-row-content">
+                            <label id="label-username">${account.username}</label>
+                            <button id="button-change-username">${data[lang]?.change ?? ""}</button>
+                        </div>
+                    </div>
+
+                    <!--Строка данных "Пароль"-->
+                    <div class="info-row">
+                        <!--Название строки данных-->
+                        <div class="info-row-label">
+                            <div class="fa-solid fa-key"></div>
+                            <label>${data[lang]?.password ?? ""}</label>
+                        </div>
+                        <div id="password" class="info-row-content">
+                            <label>*****</label>
+                            <button id="button-change-password">${data[lang]?.change ?? ""}</button>
+                        </div>
+                    </div>
+                `;
+
+                profile_section.addEventListener("click", (event) => {
+                    // Изменить имя
+                    if (event.target && event.target.id === "button-change-username") {
+                        document.startViewTransition(() => changeUsername());
+                    }
+                    // Изменить пароль
+                    else if (event.target && event.target.id === "button-change-password") {
+                        document.startViewTransition(() => changePassword());
+                    }
+                });
+            }
+
+            // Секция профиля "Конфиденциальность"
+            async function loadConfidentiality() {
+
+            }
+
+            // Секция профиля "Параметры"
+            async function loadParameters() {
+                profile_section.innerHTML = `
+                    <!--Заголовок секции профиля-->
+                    <label class="title">${data[lang]["parameters"].toUpperCase() ?? ""}</label>
+
+                    <!--Строка данных "Язык"-->
+                    <div class="info-row">
+                        <!--Название строки данных-->
+                        <div class="info-row-label">
+                            <div class="fa-solid fa-language"></div>
+                            <label>${data[lang]?.selectedLanguage ?? ""}</label>
+                        </div>
+                        <div id="language" class="info-row-content">
+                            <label>${languages.find(item => item.code === localStorage.getItem('lang')).language}</label>
+                            <button id="button-change-language">${data[lang]?.change ?? ""}</button>
+                        </div>
+                    </div>
+                `;
+
+                profile_section.addEventListener("click", (event) => {
+                    // Изменить язык
+                    if (event.target && event.target.id === "button-change-language") {
+                        document.startViewTransition(() => changeLanguage());
+                    }
+                });
+            }
+
+            // Изменить имя
+            function changeUsername() {
+                // Контейнер имени
+                const div_username = document.getElementById("username");
+                const div_username_children = [...div_username.children].map(child => child.cloneNode(true));;
+                div_username.replaceChildren();
+
+                // Текстовое поле "Имя"
+                const input_username = document.createElement("input");
+                input_username.id = "input-username";
+                input_username.type = "text";
+                input_username.className = "xmedium";
+                input_username.placeholder = data[lang]?.usernamePlaceholder ?? "";
+                div_username.appendChild(input_username);
+
+                // Кнопка "Отменить"
+                const button_cancel = document.createElement("button");
+                button_cancel.textContent = data[lang]?.cancel ?? "";
+                button_cancel.addEventListener("click", () => {
+                    document.startViewTransition(() => {
+                        div_username.replaceChildren();
+                        div_username_children.forEach(x => div_username.appendChild(x));
+                    });
+                });
+                div_username.appendChild(button_cancel);
+
+                // Кнопка "ОК"
+                const button_OK = document.createElement("button");
+                button_OK.textContent = "OK";
+                button_OK.addEventListener("click", async () => {
+                    // Имя пользователя
+                    const username = document.getElementById("input-username").value.trim();
+
+                    // Если имя пустое
+                    if (username.length == 0) {
+                        showMessageBox(data[lang]?.enterUsernameError ?? "", "error");
+                        return;
+                    }
+
+                    // Отправить имя
+                    const formData = new FormData();
+                    formData.append("username", username);
+
+                    // Запрос на изменение имени
+                    try {
+                        const response = await fetch("/api/change-username", {
+                            method: "POST",
+                            body: formData
+                        });
+
+                        // Успешное изменение имени
+                        if (response.ok) {
+                            const result = await response.json();
+                            div_username_children.find(x => x.id === "label-username").textContent = username;
+                            document.startViewTransition(() => {
+                                div_username.replaceChildren();
+                                div_username_children.forEach(x => div_username.appendChild(x));
+                            });
+                            showMessageBox(data[lang]?.usernameChangedSuccess ?? "", "success");
+                        }
+                        // Сообщение об ошибке
+                        else {
+                            const message = await response.text();
+                            if (message === "userDoesNotExistError") {
+                                showMessageBox(data[lang]?.userDoesNotExistError ?? "", "error");
+                            }
+                            else if (message === "usernameExistsError") {
+                                showMessageBox(data[lang]?.usernameExistsError ?? "", "error");
+                            }
+                            else {
+                                showMessageBox(message, "error");
+                            }
+                        }
+                    }
+                    catch (error) {
+                        showMessageBox(error.message, "error");
+                    }
+                });
+                div_username.appendChild(button_OK);
+            }
+
+            // Изменить пароль
+            function changePassword() {
+                // Контейнер пароля
+                const div_password = document.getElementById("password");
+                const div_password_children = [...div_password.children].map(child => child.cloneNode(true));;
+                div_password.replaceChildren();
+
+                // Текстовое поле "Пароль"
+                const input_password = document.createElement("input");
+                input_password.id = "input-password";
+                input_password.type = "text";
+                input_password.className = "xmedium";
+                input_password.placeholder = data[lang]?.passwordPlaceholder ?? "";
+                div_password.appendChild(input_password);
+
+                // Кнопка "Отменить"
+                const button_cancel = document.createElement("button");
+                button_cancel.textContent = data[lang]?.cancel ?? "";
+                button_cancel.addEventListener("click", () => {
+                    document.startViewTransition(() => {
+                        div_password.replaceChildren();
+                        div_password_children.forEach(x => div_password.appendChild(x));
+                    });
+                });
+                div_password.appendChild(button_cancel);
+
+                // Кнопка "ОК"
+                const button_OK = document.createElement("button");
+                button_OK.textContent = "OK";
+                button_OK.addEventListener("click", async () => {
+                    // Пароль
+                    const password = document.getElementById("input-password").value.trim();
+
+                    // Если пароль пустой
+                    if (password.length == 0) {
+                        showMessageBox(data[lang]?.enterPasswordError ?? "", "error");
+                        return;
+                    }
+
+                    // Отправить пароль
+                    const formData = new FormData();
+                    formData.append("password", password);
+
+                    // Запрос на изменение пароля
+                    try {
+                        const response = await fetch("/api/change-password", {
+                            method: "POST",
+                            body: formData
+                        });
+
+                        // Успешное изменение пароля
+                        if (response.ok) {
+                            document.startViewTransition(() => {
+                                div_password.replaceChildren();
+                                div_password_children.forEach(x => div_password.appendChild(x));
+                            });
+                            showMessageBox(data[lang]?.passwordChangedSuccess ?? "", "success");
+                        }
+                        // Сообщение об ошибке
+                        else {
+                            const message = await response.text();
+                            if (message === "userDoesNotExistError") {
+                                showMessageBox(data[lang]?.userDoesNotExistError ?? "", "error");
+                            }
+                            else if (message === "samePasswordError") {
+                                showMessageBox(data[lang]?.samePasswordError ?? "", "error");
+                            }
+                            else {
+                                showMessageBox(message, "error");
+                            }
+                        }
+                    }
+                    catch (error) {
+                        showMessageBox(error.message, "error");
+                    }
+                });
+                div_password.appendChild(button_OK);
+            }
+
+            // Изменить язык
+            function changeLanguage() {
+                // Контейнер языка
+                const div_language = document.getElementById("language");
+                const div_language_children = [...div_language.children].map(child => child.cloneNode(true));;
+                div_language.replaceChildren();
+
+                // Выпадающий список языков
+                const select_language = document.createElement("select");
+                select_language.className = "small";
+                div_language.appendChild(select_language);
+
+                // Языки
+                languages.forEach((lang) => {
+                    const language_option = document.createElement("option");
+                    language_option.value = lang["code"];
+                    language_option.textContent = lang["language"];
+                    select_language.appendChild(language_option);
+                });
+
+                // Выбрать текущий язык в выпадающем списке
+                select_language.selectedIndex = languages.findIndex(x => x["code"] === lang);
+
+                // Кнопка "Отменить"
+                const button_cancel = document.createElement("button");
+                button_cancel.textContent = data[lang]?.cancel ?? "";
+                button_cancel.addEventListener("click", () => {
+                    document.startViewTransition(() => {
+                        div_language.replaceChildren();
+                        div_language_children.forEach(x => div_language.appendChild(x));
+                    });
+                });
+                div_language.appendChild(button_cancel);
+
+                // Кнопка "ОК"
+                const button_OK = document.createElement("button");
+                button_OK.textContent = "OK";
+                button_OK.addEventListener("click", async () => {
+
+                    // Язык
+                    const language = select_language.value;
+
+                    // Если выбран текущий язык
+                    if (language === lang) {
+                        showMessageBox(data[lang]?.chooseAnotherLanguage ?? "", "error");
+                        return;
+                    }
+
+                    // Отправить пароль
+                    const formData = new FormData();
+                    formData.append("language", language);
+
+                    // Запрос на изменение языка
+                    try {
+                        const response = await fetch("/api/change-language", {
+                            method: "POST",
+                            body: formData
+                        });
+
+                        // Успешное изменение языка
+                        if (response.ok) {
+                            document.startViewTransition(() => {
+                                div_language.replaceChildren();
+                                div_language_children.forEach(x => div_language.appendChild(x));
+                                showMessageBox(data[lang]?.languageChangedSuccess ?? "", "success");
+                                setTimeout(() => location.reload(), 1000);
+                            });
+                        }
+                        // Сообщение об ошибке
+                        else {
+                            const message = await response.text();
+                            throw new Error(message);
+                        }
+                    }
+                    catch (error) {
+                        showMessageBox(data[lang][error.message] ?? error.message, "error");
+                    }
+
+                });
+                div_language.appendChild(button_OK);
+            }
+        }
+
+        // Загрузка контента
+        setContent();
+    </script>
+</body>
+</html>

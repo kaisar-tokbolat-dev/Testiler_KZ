@@ -1,0 +1,368 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+    <!--Шапка сайта-->
+    <div id="header"></div>
+
+    <!--Основной контент-->
+    <div id="main"></div>
+
+    <script src="/js/main.js"></script>
+
+    <script>
+        // Загрузка содержимого
+        async function setContent() {
+            // Получить язык
+            const lang = await getSelectedLanguage();
+
+            // Получить имя пользователя
+            const username = await getUsername();
+
+            // ID теста
+            const testId = getTestId();
+
+            // Шапка сайта
+            const div_header = document.getElementById("header");
+
+            // Ссылка на главную страницу
+            div_header.appendChild(getLinkToMainPage());
+
+            // Основной контент
+            const main_content = document.getElementById("main");
+
+            // Меню личного аккаунта
+            document.getElementById("header").appendChild(divMenuAccount(lang, username));
+
+            // ID вопроса
+            const questionId = crypto.randomUUID();
+
+            // Контейнеры ответов
+            const answer_elements = new Array();
+
+            // Запрос
+            const response = await fetch(`/api/questions?testId=${testId}`);
+
+            // Тест
+            const test = await response.json();
+
+            // ССЫЛКИ
+            const div_links = document.createElement("div");
+            div_links.className = "links";
+            main_content.appendChild(div_links);
+            // 1. Ссылка на страницу "Мои тесты"
+            const my_tests_links = document.createElement("a");
+            my_tests_links.href = "/account/my-tests";
+            my_tests_links.textContent = data[lang]?.["my-tests"].toUpperCase() ?? "";
+            div_links.appendChild(my_tests_links);
+            // 2. Иконка ссылки
+            const icon_link = document.createElement("div");
+            icon_link.className = "animation fa-solid fa-play fa-flip";
+            div_links.appendChild(icon_link);
+            // 3. Ссылка на тест
+            const test_link = document.createElement("a");
+            test_link.href = `/create-test?testId=${testId}`;
+            test_link.textContent = test.title;
+            div_links.appendChild(test_link);
+            // 4. Иконка ссылки
+            div_links.appendChild(icon_link.cloneNode(true));
+            // 5. Ссылка на вопросы
+            const questions_link = document.createElement("a");
+            questions_link.href = `questions?testId=${testId}`;
+            questions_link.textContent = data[lang]?.questions ?? "";
+            div_links.appendChild(questions_link);
+
+            // Отобразить форму вопроса
+            document.startViewTransition(async () => await setQuestion());
+
+            // Отобразить контейнер вопроса
+            async function setQuestion() {
+                // Порядок вопроса
+                const order = test.questions.length + 1;
+
+                // Контейнер вопроса
+                const div_question = document.createElement("div");
+                div_question.className = "form-style";
+                main_content.appendChild(div_question);
+
+                // 1. Заголовок
+                const label_title = document.createElement("label");
+                label_title.className = "title";
+                label_title.textContent = data[lang]?.addQuestion.toUpperCase() ?? "";
+                div_question.appendChild(label_title);
+
+                // 2. Порядок вопроса
+                const label_question_order = document.createElement("label");
+                label_question_order.className = "title medium";
+                label_question_order.textContent = `${data[lang]?.question ?? ""} №${order}`;
+                div_question.appendChild(label_question_order);
+
+                // 3. Текст вопроса
+                const row_question_text = document.createElement("div");
+                row_question_text.className = "row";
+                div_question.appendChild(row_question_text);
+
+                // 3.1. Надпись
+                const label_question_text = document.createElement("label");
+                label_question_text.textContent = data[lang]?.questionText ?? "";
+                row_question_text.appendChild(label_question_text);
+
+                // 3.2. Текстовое поле
+                const textarea_question_text = document.createElement("textarea");
+                textarea_question_text.className = "small";
+                textarea_question_text.id = "question-text";
+                row_question_text.appendChild(textarea_question_text);
+
+                // 4. Тип вопроса
+                const row_question_type = document.createElement("div");
+                row_question_type.className = "row";
+                div_question.appendChild(row_question_type);
+
+                // 4.1. Надпись
+                const label_question_type = document.createElement("label");
+                label_question_type.textContent = data[lang]?.questionType ?? "";
+                row_question_type.appendChild(label_question_type);
+
+                // 4.2. Выпадающий список
+                const select_question_type = document.createElement("select");
+                // Отобразить значения
+                questionTypes.forEach(x => {
+                    const option = document.createElement("option");
+                    option.value = x;
+                    option.textContent = data[lang][x] ?? "";
+                    select_question_type.appendChild(option);
+                });
+                // Значение по умолчанию
+                select_question_type.value = questionTypes[0];
+                // Изменить тип вопроса
+                select_question_type.addEventListener("change", () => {
+                    for (let i = 0; i < answer_elements.length; i++) {
+                        const selection_control_answer = document.getElementById("selection-control-" + answer_elements[i].id);
+                        selection_control_answer.type = select_question_type.value;
+                    }
+                });
+                row_question_type.appendChild(select_question_type);
+
+                // 5. Сетка ответов
+                const grid_answers = document.createElement("div");
+                grid_answers.id = "answers";
+                grid_answers.className = "grid-answers";
+                div_question.appendChild(grid_answers);
+
+                // 6. КНОПКИ
+                const div_buttons = document.createElement("div");
+                div_buttons.className = "buttons";
+                div_question.appendChild(div_buttons);
+                // 6.1. Кнопка "Добавить ответ"
+                const button_add_answer = document.createElement("button");
+                button_add_answer.id = "button-add-answer";
+                button_add_answer.className = "max";
+                button_add_answer.textContent = data[lang]?.addAnswer.toUpperCase() ?? "";
+                button_add_answer.addEventListener("click", () => {
+
+                    // Создать контейнер
+                    const div_answer = addAnswer(answer_elements.length + 1, select_question_type.value, lang);
+
+                    // Добавить контейнер в массив
+                    answer_elements.push(div_answer);
+
+                    // Добавить контейнер на страницу
+                    document.startViewTransition(() => grid_answers.appendChild(div_answer));
+                });
+                div_buttons.appendChild(button_add_answer);
+                // 6.2. Кнопка "Добавить вопрос"
+                const button_add_question = document.createElement("button");
+                button_add_question.id = "button-add-question";
+                button_add_question.className = "max";
+                button_add_question.textContent = data[lang]?.addQuestion.toUpperCase() ?? "";
+                button_add_question.addEventListener("click", async () => {
+
+                    // Если не был добавлен ни один ответ
+                    if (answer_elements.length < 2) {
+                        showMessageBox("Вопрос должен состоять как минимум из двух ответов.", "error");
+                        return;
+                    }
+
+                    // Ответы
+                    const answers = new Array();
+
+                    answer_elements.forEach((x, i) => {
+
+                        // ID ответа
+                        const answerId = x.id;
+
+                        // Текст ответа
+                        const text = document.getElementById("answer-textarea-" + answerId).value;
+
+                        // Верный ли ответ
+                        const isCorrect = document.getElementById("selection-control-" + answerId).checked;
+
+                        // Объект ответа
+                        const answer = {
+                            "id": answerId,
+                            "text": text,
+                            "isCorrect": isCorrect
+                        };
+                        answers.push(answer);
+                    });
+
+                    // Текст вопроса
+                    const questionText = document.getElementById("question-text").value.trim();
+
+                    // Если текст вопроса пустой
+                    if (questionText.trim().length == 0) {
+                        showMessageBox("Текст вопроса не может быть пустым.", "error");
+                        return;
+                    }
+
+                    // Данные для отправки
+                    const formData = new FormData();
+                    const questions = [{
+                        "id": questionId,
+                        "text": questionText,
+                        "type": questionTypes.findIndex(x => x === select_question_type.value),
+                        "answerDataCollection": answers
+                    }];
+                    formData.append("questionsJson", JSON.stringify(questions));
+
+                    // ID теста
+                    const queryString = window.location.search;
+                    const urlParams = new URLSearchParams(queryString);
+                    const testId = urlParams.get('testId');
+
+                    console.log(questions);
+
+                    // Отправить запрос
+                    const response = await fetch(`/api/add-question?testId=${testId}`, {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        window.location.href = `/questions?testId=${testId}`;
+                    }
+                    else {
+                        const message = await response.text();
+                        showMessageBox(message, "error");
+                    }
+                });
+                div_buttons.appendChild(button_add_question);
+
+                // 7. Кнопка "Удалить вопрос"
+                const button_cancel = document.createElement("button");
+                button_cancel.id = "button-delete-answer";
+                button_cancel.className = "max";
+                button_cancel.textContent = data[lang]?.cancel.toUpperCase() ?? "";
+                button_cancel.addEventListener("click", () => {
+                    window.history.back();
+                });
+                div_question.appendChild(button_cancel);
+
+
+
+
+
+
+                // Выбор типа вопроса
+
+
+                // Отобразить вопросы
+                for (let i = 0; i < 4; i++) {
+
+                    // Создать контейнер
+                    const div_answer = addAnswer(i + 1, select_question_type.value, lang);
+
+                    // Добавить контейнер вопроса в массив
+                    answer_elements.push(div_answer);
+
+                    // Добавить контейнер на страницу
+                    grid_answers.appendChild(div_answer);
+                }
+
+                // Удалить ответ
+                //const button_delete_answer = document.getElementById("button-delete-answer");
+                //button_delete_answer.addEventListener("click", () => {
+                //    window.history.back();
+                //});
+            }
+
+            // Добавить ответ
+            function addAnswer(order, type = "radio", lang) {
+
+                // ID ответа
+                const answerId = crypto.randomUUID();
+
+                // Контейнер ответа
+                const div_answer = document.createElement("div");
+                div_answer.id = answerId;
+                div_answer.className = "answer";
+
+                // 1. Порядок ответа
+                const label_answer_order = document.createElement("label");
+                label_answer_order.id = "answer-order-" + answerId;
+                label_answer_order.className = "xmedium";
+                label_answer_order.textContent = `${data[lang]?.answer ?? ""} №${order}`;
+                div_answer.appendChild(label_answer_order);
+
+                // 2. Текстовое поле
+                const textarea_answer = document.createElement("textarea");
+                textarea_answer.id = "answer-textarea-" + answerId;
+                textarea_answer.className = "xsmall";
+                div_answer.appendChild(textarea_answer);
+
+                // 3. Элементы управления
+                const div_control_elements = document.createElement("div");
+                div_control_elements.className = "child";
+                div_answer.appendChild(div_control_elements);
+
+                // 3.1. Маркированный список для элемента выбора правильного ответа
+                const ul_selection_control = document.createElement("ul");
+                div_control_elements.appendChild(ul_selection_control);
+
+                // 3.1.1. Элемент маркированного списка
+                const li_selection_control = document.createElement("li");
+                ul_selection_control.appendChild(li_selection_control);
+
+                // 3.1.1.1 Элемент выбора правильного ответа
+                const selection_control_answer = document.createElement("input");
+                selection_control_answer.id = "selection-control-" + answerId;
+                selection_control_answer.name = questionId;
+                selection_control_answer.type = type;
+                li_selection_control.appendChild(selection_control_answer);
+
+                // 3.1.1.2 Текст "Верный ответ"
+                const label_correct_answer = document.createElement("label");
+                label_correct_answer.textContent = data[lang]?.correctAnswer ?? "";
+                label_correct_answer.className = "xmedium";
+                li_selection_control.appendChild(label_correct_answer);
+
+                // 3.1.2. Кнопка "Удалить"
+                const button_delete_answer = document.createElement("button");
+                button_delete_answer.textContent = data[lang]?.delete.toUpperCase() ?? "";
+                button_delete_answer.className = "medium";
+                button_delete_answer.addEventListener("click", () => {
+
+                    // Удалить контейнер с массива
+                    answer_elements.splice(answer_elements.indexOf(div_answer), 1);
+                    for (let i = 0; i < answer_elements.length; i++) {
+                        document.getElementById("answer-order-" + answer_elements[i].id).textContent = `${data[lang]?.answer ?? ""} №${i + 1}`;
+                    }
+
+                    // Удалить контейнер со страницы
+                    document.startViewTransition(() => div_answer.remove());
+                });
+                div_control_elements.appendChild(button_delete_answer);
+
+                return div_answer;
+            }
+        }
+
+        // Загрузка содержимого
+        setContent();
+    </script>
+</body>
+</html>

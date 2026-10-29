@@ -1,0 +1,396 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/styles/styles.css">
+
+    <style>
+
+        /*Основной контент*/
+        #main {
+            width: 1300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!--Шапка сайта-->
+    <div id="header"></div>
+
+    <!--Основной контент-->
+    <div id="main"></div>
+
+    <script src="/js/main.js"></script>
+
+    <script>
+
+        // Загрузка контента
+        async function setContent() {
+            // Получить язык
+            const lang = await getSelectedLanguage();
+
+            // Получить имя пользователя
+            const username = await getUsername();
+
+            // Шапка сайта
+            const div_header = document.getElementById("header");
+
+            // Заголовок страницы
+            document.title = data[lang]?.mainPage ?? "";
+
+            // Ссылка на главную страницу
+            div_header.appendChild(getLinkToMainPage());
+
+            // Поисковая панель
+            const div_search_bar = document.createElement("div");
+            div_search_bar.className = "search-bar";
+            div_header.appendChild(div_search_bar);
+
+            // Строка поиска
+            const input_teast_search = document.createElement("input");
+            input_teast_search.type = "text";
+            input_teast_search.spellcheck = false;
+            input_teast_search.placeholder = data[lang]?.teastSearchPlaceholder ?? "";
+            input_teast_search.className = "search";
+            div_search_bar.appendChild(input_teast_search);
+
+            // КНОПКА ПОИСКА
+            const button_test_search = document.createElement("button");
+            button_test_search.addEventListener("click", async () => {
+                try {
+                    // Данные для отправки
+                    const formData = new FormData();
+                    formData.append("text", input_teast_search.value);
+                    
+                    // Запрос
+                    const response = await fetch(`/api/test-search`, {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    // Отобразить результаты поиска
+                    if (response.ok) {
+                        // Тесты
+                        const tests = await response.json();
+                        console.log(tests);
+                        // Очистить основной контент
+                        main_content.innerHTML = ``;
+
+                        // Если тесты были найдены
+                        if (tests.length > 0) {
+                            // Отобразить результаты поиска
+                            document.startViewTransition(() => loadSearchResults(tests));
+                        }
+                        // Тесты отсутствуют
+                        else {
+                            document.startViewTransition(() => main_content.appendChild(getInlineMessage(data[lang]?.testsNotFound ?? "")));
+                        }
+
+                    }
+                    else {
+                        const message = await response.message();
+                        throw new Error(message);
+                    }
+                }
+                catch (error) {
+                    showMessageBox(error.message, "error");
+                }
+            });
+            div_search_bar.appendChild(button_test_search);
+            // 1. Иконка кнопки поиска
+            const icon_test_search = document.createElement("div");
+            icon_test_search.className = "fa-brands fa-sistrix";
+            button_test_search.appendChild(icon_test_search);
+            // 2. Текст кнопки поиска
+            button_test_search.appendChild(document.createTextNode(data[lang]?.testSearch.toUpperCase() ?? ""));
+
+            // Основной контент
+            const main_content = document.getElementById("main");
+
+            // Меню личного аккаунта
+            document.getElementById("header").appendChild(divMenuAccount(lang, username));
+
+            // Загрузка выбранной секции
+            loadSection();
+
+            // Загрузка выбранной секции
+            function loadSection() {
+                // Текущая секция
+                const section = window.location.pathname.split("/").pop();
+
+                // Главная
+                if (section === "main") {
+                    document.startViewTransition(() => loadMain());
+                }
+                // Категории
+                else if (section === "categories") {
+                    document.startViewTransition(() => loadCategories());
+                }
+                // Результаты поиска
+                else if (section === "test-search") {
+                    document.startViewTransition(() => loadSearchResults());
+                }
+                // Тесты по категории
+                else if (section === "tests-by-category") {
+                    document.startViewTransition(() => loadTestsByCategory());
+                }
+            }
+
+            // Секция "Главная"
+            async function loadMain() {
+                try {
+                    // Запрос
+                    const response = await fetch(`/api/categories`);
+
+                    // Отобразить категории
+                    if (response.ok) {
+                        // Категории
+                        const categories = await response.json();
+                        console.log(categories);
+
+                        // Получить тесты по категориям
+                        for (const category of categories) {
+                            // Запрос для получения тестов по категории
+                            const response = await fetch(`/api/category/tests?category=${category.name}&limit=${4}`);
+
+                            // Тесты
+                            const tests = await response.json();
+                            console.log(tests);
+
+                            // Не отображать категорию, если отсутствуют тесты по ней
+                            if (tests.length == 0) {
+                                continue;
+                            }
+
+                            // Контейнер категории
+                            const div_category = document.createElement("div");
+                            div_category.className = "category";
+                            main_content.appendChild(div_category);
+
+                            // КОНТЕЙНЕР ЗАГОЛОВКА КАТЕГОРИИ
+                            const div_category_title = document.createElement("div");
+                            div_category_title.className = "category-title";
+                            div_category_title.addEventListener("click", () => {
+                                window.location.href = `/home/tests-by-category?category=${category.name}`;
+                            });
+                            div_category.appendChild(div_category_title);
+
+                            // 1. Заголовок категории
+                            const label_category = document.createElement("label");
+                            label_category.textContent = category.text;
+                            label_category.className = "xlarge";
+                            label_category.style = "align-self: flex-start;";
+                            div_category_title.appendChild(label_category);
+
+                            // 2. Иконка категории
+                            const icon_category_link = document.createElement("div");
+                            icon_category_link.className = "animation fa-solid fa-play fa-flip";
+                            div_category_title.appendChild(icon_category_link);
+
+                            // Сетка тестов
+                            const test_grid = document.createElement("div");
+                            test_grid.className = "test-grid";
+                            div_category.appendChild(test_grid);
+
+                            // Добавить тесты в сетку
+                            tests.forEach((test) => {
+                                test_grid.appendChild(showTest(test, lang));
+                            });
+
+                            div_category.appendChild(test_grid);
+                        }
+
+                        // ВСЕ КАТЕГОРИИ
+                        const a_all_categories = document.createElement("a");
+                        a_all_categories.href = "/home/categories";
+                        a_all_categories.textContent = data[lang]?.allCategories.toUpperCase() ?? "";
+                        main_content.appendChild(a_all_categories);
+                    }
+
+                    // Сообщение об ошибке
+                    else {
+                        const message = await response.text();
+                        throw new Error(message);
+                    }
+                }
+                catch (error) {
+                    document.startViewTransition(() => showMessageBox(data[lang][error.message] ?? error.message, "error"));
+                }
+            }
+
+            // Секция "Категории"
+            async function loadCategories() {
+                try {
+                    // Запрос
+                    const response = await fetch(`/api/categories`);
+
+                    // Отобразить категории
+                    if (response.ok) {
+                        // Категории
+                        const categories = await response.json();
+                        categories.sort((a, b) => a.text.localeCompare(b.text));
+                        console.log(categories);
+
+                        // Контейнер категории
+                        const div_category = document.createElement("div");
+                        div_category.className = "category";
+                        main_content.appendChild(div_category);
+
+                        // КОНТЕЙНЕР ЗАГОЛОВКА КАТЕГОРИИ
+                        const div_category_title = document.createElement("div");
+                        div_category_title.className = "category-title center";
+                        div_category_title.addEventListener("click", async () => {
+                            window.location.href = "/home/categories";
+                        });
+                        div_category.appendChild(div_category_title);
+
+                        // 1. Заголовок категории
+                        const label_category = document.createElement("label");
+                        label_category.textContent = data[lang]?.allCategories.toUpperCase() ?? "";
+                        label_category.className = "xlarge";
+                        label_category.style = "align-self: flex-start;";
+                        div_category_title.appendChild(label_category);
+
+                        // Сетка категорий
+                        const category_grid = document.createElement("div");
+                        category_grid.className = "category-grid";
+
+                        // Получить категории
+                        categories.forEach((category) => {
+                            // Кнопка категории
+                            const button_category = document.createElement("button");
+                            button_category.textContent = category.text;
+                            button_category.className = "line-break";
+                            button_category.addEventListener("click", () => {
+                                window.location.href = `/home/tests-by-category?category=${category.name}`;
+                            });
+                            category_grid.appendChild(button_category);
+                        });
+
+                        // Добавить сетку категорий
+                        div_category.appendChild(category_grid);
+                    }
+
+                    // Сообщение об ошибке
+                    else {
+                        const message = await response.text();
+                        throw new Error(message);
+                    }
+                }
+                catch (error) {
+                    document.startViewTransition(() => showMessageBox(data[lang][error.message] ?? error.message, "error"));
+                }
+            }
+
+            // Секция "Результаты поиска"
+            function loadSearchResults(tests) {
+                // Сетка тестов
+                const test_grid = document.createElement("div");
+                test_grid.className = "test-grid";
+                main_content.appendChild(test_grid);
+
+                // Добавить тесты в сетку
+                tests.forEach((test) => {
+                    test_grid.appendChild(showTest(test, lang));
+                });
+            }
+
+            // Секция "Тесты по категориии"
+            async function loadTestsByCategory() {
+                try {
+                    // Название категории
+                    const category = new URLSearchParams(window.location.search).get('category');
+
+                    // Запрос
+                    const response = await fetch(`/api/category/tests?category=${category}`);
+
+                    // Если запрос успешен
+                    if (response.ok) {
+                        // Тесты
+                        const tests = await response.json();
+                        console.log(tests);
+
+                        // Если тесты присутствуют
+                        if (tests.length > 0) {
+                            // Контейнер категории
+                            const div_category = document.createElement("div");
+                            div_category.className = "category";
+                            main_content.appendChild(div_category);
+
+                            // КОНТЕЙНЕР ЗАГОЛОВКА КАТЕГОРИИ
+                            const div_category_title = document.createElement("div");
+                            div_category_title.className = "category-title";
+                            div_category.appendChild(div_category_title);
+
+                            // 1. Заголовок категории
+                            const label_category = document.createElement("label");
+                            label_category.textContent = await getCategory(category);
+                            
+                            label_category.className = "xlarge";
+                            label_category.style = "align-self: flex-start;";
+                            div_category_title.appendChild(label_category);
+
+                            // 2. Иконка категории
+                            const icon_category_link = document.createElement("div");
+                            icon_category_link.className = "animation fa-solid fa-play fa-flip";
+                            div_category_title.appendChild(icon_category_link);
+
+                            // Сетка тестов
+                            const test_grid = document.createElement("div");
+                            test_grid.className = "test-grid";
+                            div_category.appendChild(test_grid);
+
+                            // Добавить тесты в сетку
+                            tests.forEach((test) => {
+                                test_grid.appendChild(showTest(test, lang));
+                            });
+
+                            div_category.appendChild(test_grid);
+                        }
+                        else {
+                            main_content.appendChild(getInlineMessage(data[lang]?.testNotFound ?? "", "info"));
+                        }
+                    }
+
+                    // Сообщение об ошибке
+                    else {
+                        const message = await response.text();
+                        throw new Error(message);
+                    }
+                }
+                catch (error) {
+                    document.startViewTransition(() => showMessageBox(data[lang][error.message] ?? error.message, "error"));
+                }
+            }
+
+            // Получить категорию
+            async function getCategory(categoryName) {
+                const response = await fetch(`/api/category?categoryName=${categoryName}`);
+
+                // Если запрос успешен
+                if (response.ok) {
+                    const category = await response.json();
+                    return category.text;
+                }
+
+                // Сообщение об ошибке
+                else {
+                    const message = await response.text();
+                    throw new Error(message);
+                }
+            }
+        }
+
+        // Загрузка контента
+        setContent();
+        
+    </script>
+</body>
+</html>

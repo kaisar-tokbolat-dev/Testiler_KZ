@@ -1,0 +1,1011 @@
+:root {
+    background-color: #1B0C36;
+}
+
+@font-face {
+    font-family: "Balsamiq Sans";
+    src: url(/fonts/BalsamiqSans-Regular.ttf);
+}
+
+/* Тело */
+body {
+    background-color: #1B0C36;
+    font-family: "Balsamiq Sans", sans-serif;
+    color: white;
+    margin: 40px;
+}
+
+/* Шапка сайта */
+#header {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    margin-bottom: 60px;
+    justify-content: space-between;
+}
+
+/* Название проекта */
+#project-name {
+    font-family: Consolas;
+    font-size: 30pt;
+    font-weight: bold;
+    align-self: flex-start;
+}
+
+select {
+    --font-size: 20pt;
+    --width: 100%;
+    background: #1B0C36;
+    border-color: purple;
+    border-radius: 10px;
+    border-style: solid;
+    border-width: 5px;
+    color: white;
+    padding: 10px;
+    font-family: "Balsamiq Sans", sans-serif;
+    font-size: var(--font-size);
+    cursor: pointer;
+    width: var(--width);
+}
+
+    select#select-language {
+        --width: auto;
+    }
+
+    select.small {
+        --font-size: 16pt;
+    }
+
+    select.medium {
+        --font-size: 18pt;
+    }
+
+.code {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 40px;
+    margin-top: 80px;
+}
+
+input[type="text"], input[type="password"] {
+    --font-size: 25pt;
+    --width: 100%;
+    --font-family: Consolas;
+    background-color: #2B1354;
+    border-radius: 10px;
+    border-color: purple;
+    border-width: 5px;
+    border-style: solid;
+    color: white;
+    font-size: var(--font-size);
+    font-family: var(--font-family);
+    padding: 10px;
+    width: var(--width);
+}
+
+    input:focus {
+        border-color: red;
+        outline: none;
+        background-color: #4C2194;
+        transition: 0.5s;
+    }
+
+    input[type="text"].search {
+        --font-family: "Balsamiq Sans", sans-serif;
+        --font-size: 18pt;
+        --width: 100%;
+    }
+
+    input[type="text"].xmedium {
+        --font-size: 18pt;
+    }
+
+    textarea {
+        --min-height: auto;
+        --height: 200px;
+        --width: 100%;
+        --font-size: 25pt;
+        background-color: #2B1354;
+        border-radius: 10px;
+        border-color: purple;
+        border-width: 5px;
+        border-style: solid;
+        color: white;
+        font-family: Consolas;
+        font-size: var(--font-size);
+        min-height: var(--min-height);
+        height: var(--height);
+        padding: 10px;
+        width: var(--width);
+        box-sizing: border-box;
+    }
+
+    textarea.small {
+        --min-height: 150px;
+        --height: auto;
+        --font-size: 20pt;
+    }
+
+    textarea.xsmall {
+        --min-height: 100px;
+        --height: auto;
+        --font-size: 18pt;
+    }
+
+/* Стиль стандартной кнопки */
+button {
+    --background: purple;
+    --border-width: 5px;
+    --font-size: 18pt;
+    --min-width: 200px;
+    --width: none;
+    --padding: 10px 20px 10px 20px;
+    --gap: 10px;
+    background-color: var(--background);
+    border-radius: 10px;
+    border-color: purple;
+    border-style: solid;
+    border-width: var(--border-width);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-family: "Balsamiq Sans", sans-serif;
+    font-size: var(--font-size);
+    font-weight: bold;
+    gap: 10px;
+    justify-content: center;
+    min-width: var(--min-width);
+    width: var(--width);
+    padding: var(--padding);
+    white-space: nowrap;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: var(--gap);
+}
+
+    button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    button.is-active,
+    button:hover {
+        background-color: #2B1354;
+        transition-duration: 0.25s;
+    }
+
+    
+    button:active {
+        background-color: red;
+        border-color: red;
+    }
+
+    /*Стиль маленькой кнопки*/
+    button.small {
+        --border-width: 2px;
+        --font-size: 16px;
+        --min-width: none;
+        --width: 47%;
+        --padding: 10px;
+        --gap: 5px;
+    }
+
+    button.medium {
+        --min-width: 50px;
+        --font-size: 18pt;
+    }
+
+    button.max {
+        width: 100%;
+    }
+
+    button.flex {
+        white-space: normal;
+        word-wrap: break-word;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 100%;
+    }
+
+    /*Стиль большой кнопки*/
+    button.large {
+        margin: 0 auto;
+        min-width: 400px;
+        font-size: 25pt;
+    }
+
+    /*Стиль широкой кнопки*/
+    button.wide {
+        --min-width: none;
+        --width: auto;
+    }
+
+    /*Стиль зеленой кнопки*/
+    button.green {
+        --background: forestgreen;
+    }
+
+    /*Кнопка с переносом текста*/
+    button.line-break {
+        white-space: pre-wrap;
+        align-items: center;
+    }
+
+/*Стиль кнопки аватара*/
+.userpic {
+    cursor: pointer;
+}
+
+    .userpic:hover {
+        color: purple;
+    }
+
+    .userpic:active {
+        color: darkslateblue;
+    }
+
+/*Гиперссылки*/
+a {
+    --font-size: 25pt;
+    font-size: var(--font-size);
+    color: white;
+    text-decoration: underline;
+}
+
+    a:hover {
+        color: purple;
+        cursor: pointer;
+        transition: 0.25s;
+    }
+
+    a:active {
+        color: red;
+    }
+
+    a.small {
+        --font-size: 16pt;
+    }
+
+    a.medium {
+        --font-size: 18pt;
+    }
+
+    a.xmedium {
+        --font-size: 23pt;
+    }
+
+    a.large {
+        --font-size: 25pt;
+    }
+
+    a.xlarge {
+        --font-size: 30pt;
+    }
+
+/*Форма*/
+.form-style {
+    border-color: purple;
+    border-width: 5px;
+    border-style: solid;
+    border-radius: 10px;
+    padding: 40px 60px 40px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+    .form-style label:not(.title) {
+        min-width: 30%;
+        white-space: normal;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.2;
+    }
+
+    .row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    /*Подписи*/
+    label {
+        --font-size: 25pt;
+        font-size: var(--font-size);
+    }
+
+    label.small {
+        --font-size: 16pt;
+    }
+
+    label.medium {
+        --font-size: 18pt;
+    }
+
+    label.xmedium {
+        --font-size: 23pt;
+    }
+
+    label.large {
+        --font-size: 25pt;
+    }
+
+    label.xlarge {
+        --font-size: 30pt;
+    }
+
+/*Заголовок*/
+.title {
+    font-size: 30pt;
+    font-weight: bold;
+    text-align: center;
+}
+
+    .title.medium {
+        font-size: 25pt;
+    }
+
+    .title.left {
+        text-align: left;
+    }
+
+/*Строка поиска*/
+.search-bar {
+    column-gap: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-left: 20px;
+    margin-right: 20px;
+    width: 100%;
+}
+
+input[type="checkbox"] {
+    accent-color: purple;
+    height: 40px;
+    margin: 0px 20px 0px 0px;
+    width: 40px;
+}
+
+input[type="radio"] {
+    accent-color: purple;
+    width: 40px;
+    height: 40px;
+    margin: 0px 20px 0px 0px;
+}
+
+    input[type="radio"]:hover, input[type="checkbox"]:hover {
+        cursor: pointer;
+    }
+
+.message-box {
+    --background: #2B1354;
+    --border-color: purple;
+    --border-width: 2px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    border-radius: 10px;
+    align-items: center;
+    color: white;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    padding: 20px;
+    position: fixed;
+    background: var(--background);
+    border-color: var(--border-color);
+    border-style: dashed;
+    border-width: var(--border-width);
+    max-width: 50%;
+}
+    .message-box label {
+        font-size: 18pt;
+        white-space: pre-line;
+        text-align: left;
+    }
+
+    .message-box.error {
+        --background: red;
+        --border-width: 0px;
+    }
+
+    .message-box.success {
+        --background: green;
+        --border-width: 0px;
+    }
+
+/*Контейнер сообщения*/
+.inline-message {
+    align-items: center;
+    border-color: purple;
+    border-radius: 20px;
+    border-style: solid;
+    border-width: 5px;
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    padding: 40px;
+    justify-content: space-between;
+}
+
+.message-icon {
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    align-items: center;
+}
+
+    .message-icon label {
+        text-align: justify;
+    }
+
+/*Модальное окно*/
+dialog {
+    --width: 40%;
+    border-style: solid;
+    border-radius: 20px;
+    border-width: 5px;
+    border-color: purple;
+    background: #1B0C36;
+    color: white;
+    padding: 40px;
+    width: var(--width);
+}
+    dialog.wide {
+        --width: 70%;
+        height: 80%;
+    }
+
+    dialog .content {
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    dialog label {
+        text-align: center;
+    }
+
+    dialog::backdrop {
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+    }
+
+    dialog[open] {
+        display: flex;
+        flex-direction: column;
+    }
+
+    dialog .buttons {
+        display: flex;
+        flex-direction: row;
+        gap: 40px;
+        width: 100%;
+    }
+
+    dialog .dialog-image-content {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+
+    dialog .dialog-image-container {
+        width: 90%;
+        height: 90%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+
+        dialog .dialog-image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            margin: 0 auto;
+        }
+
+        /*Кнопка закрытия окна*/
+        dialog .circle-close {
+            color: red;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+            dialog .circle-close:hover {
+                cursor: pointer;
+                opacity: 0.5;
+                transition: 0.25s;
+            }
+
+            dialog .circle-close:active {
+                opacity: 1;
+            }
+
+#menu {
+    position: relative;
+    display: inline-block;
+}
+
+#submenu {
+    margin-top: 20px;
+    position: absolute;
+    display: none;
+    right: 0;
+    z-index: 1;
+}
+
+    #submenu.show {
+        display: block;
+    }
+
+    #submenu div {
+        border-color: purple;
+        border-style: solid;
+        border-width: 1px;
+        background: #1B0C36;
+        padding: 10px;
+        font-size: 18pt;
+        white-space: nowrap;
+    }
+
+        #submenu div:hover {
+            background: purple;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        #submenu div:active {
+            background: red;
+        }
+
+/*Контейнер загруженного изображения*/
+.preview-container {
+    width: 200px;
+    height: 80px;
+    background-color: #808080;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border: 2px solid purple;
+    border-radius: 10px;
+}
+
+    /*Превью загруженного изображения*/
+    .preview-container .preview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        opacity: 1;
+    }
+
+        .preview-container:hover {
+            transition: 0.25s;
+            cursor: pointer;
+            opacity: 0.5;
+        }
+
+        .preview-container:active {
+            opacity: 1;
+        }
+
+/*Тест в меню*/
+.test-menu {
+    border-color: purple;
+    border-radius: 10px;
+    border-width: 2px;
+    border-style: dashed;
+    width: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    cursor: pointer;
+}
+
+    .test-menu:hover {
+        background: #2B1354;
+        transition-duration: 0.5s;
+        border-style: solid;
+    }
+
+    /*Заголовок*/
+    .test-menu .title {
+        font-weight: bold;
+        text-align: center;
+        font-size: 18pt;
+        line-height: 1.5em;
+        min-height: 3em;
+        vertical-align: top;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /*Подписи*/
+    .test-menu label, .test-menu a {
+        font-size: 16pt;
+        text-align: right;
+    }
+
+/*Сетка тестов*/
+.test-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(4, 1fr); /* 4 столбца */
+    margin: 0 auto;
+}
+
+/*Сетка категорий*/
+.category-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(4, 1fr); /* 4 столбца */
+    margin: 0 auto;
+}
+
+
+/*Контейнер изображения*/
+.image-container {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    z-index: 0;
+}
+
+    /*Изображение*/
+    .image-container img {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+
+/*Кнопки*/
+.buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+.buttons button {
+    width: 100%;
+}
+
+.animation {
+    animation-iteration-count: 1;
+}
+
+.icon-delete, .icon-edit, .icon-open {
+    color: purple;
+}
+
+    .icon-delete:hover, .icon-edit:hover, .icon-open:hover {
+        transition: 0.25s;
+        cursor: pointer;
+        opacity: 0.5;
+    }
+
+    .icon-delete:active, .icon-edit:active, .icon-open:active {
+        color: red;
+        opacity: 1;
+    }
+
+/*Категория*/
+.category {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    justify-content: stretch;
+}
+
+/*Контейнер заголовки категории*/
+.category-title {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    align-self: flex-start;
+    width: auto;
+}
+
+    .category-title.center {
+        align-self: center;
+    }
+
+    .category-title:hover, .category-title label:hover {
+        color: purple;
+        transition: 0.25s;
+        cursor: pointer;
+    }
+
+    .category-title:active, .category-title label:active {
+        color: red;
+    }
+
+/*Строка информации*/
+.info-row {
+    border-color: purple;
+    border-radius: 10px;
+    border-style: solid;
+    border-width: 5px;
+    display: flex;
+    flex-direction: column;
+}
+
+    /*Надписи*/
+    .info-row label {
+        font-size: 20pt;
+        display: -webkit-box;
+    }
+
+/*Название строки информации*/
+.info-row-label {
+    background-color: purple;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+/*Содержимое*/
+.info-row-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/*Содержимое (вертикально)*/
+.info-row-content-column {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+    flex-direction: column;
+}
+
+/*Ссылки*/
+.links {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+}
+
+/* Спиннер */
+.loader {
+    width: 50px;
+    height: 50px;
+    border: 5px solid white;
+    border-top: 5px solid purple;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/*Контейнер вопроса*/
+.question, .question-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 40px;
+    border-width: 2px;
+    border-style: dashed;
+    border-color: purple;
+    border-radius: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+    .question ul, .answer ul {
+        list-style: none;
+        padding: 0px;
+        margin: 0px;
+    }
+
+        .question ul li, .answer ul li {
+            display: flex;
+            align-items: center;
+            margin: 0px;
+        }
+
+/*Контейнер ответа*/
+.answer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+    .answer .child {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+/*Сетка ответов*/
+.grid-answers {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(2, 1fr); /* 2 столбца */
+    width: 100%;
+}
+
+/*Основной контент*/
+#main {
+    display: flex;
+    flex-direction: column;
+    gap: 80px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/*Метка теста "Проверен"*/
+.checked-container {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+    position: absolute;
+    bottom: 10px;
+    right: 0px;
+    background: green;
+    padding: 5px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+    .checked-container label {
+        font-size: 14pt;
+    }
+
+/*Информация о тесте*/
+.test-info {
+    border-color: purple;
+    border-radius: 20px;
+    border-width: 5px;
+    border-style: solid;
+    padding: 40px;
+    height: 50%;
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    flex-grow: 2;
+}
+
+    /*Контейнер изображения*/
+    .test-info .image-container {
+        --width: 400px;
+        --height: 300px;
+        flex-grow: 1;
+        position: relative;
+        min-width: var(--width);
+        max-width: var(--width);
+        width: var(--width);
+        min-height: var(--height);
+        max-height: var(--height);
+        height: var(--height);
+        z-index: 0;
+        border-color: purple;
+        border-width: 2px;
+        border-style: dashed;
+        border-radius: 10px;
+        opacity: 1;
+    }
+
+        .test-info .image-container:hover {
+            transition: 0.25s;
+            cursor: pointer;
+            opacity: 0.5;
+        }
+
+        .test-info .image-container:active {
+            opacity: 1;
+        }
+
+        /*Изображение*/
+        .test-info .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+    /*Информационный блок*/
+    .test-info .div-info {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    /*Надписи*/
+    .test-info .labels {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+    }
+
+        .labels a, .labels label:not(.title) {
+            font-size: 20pt;
+        }
+
+        .labels .row {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+        }
+
+        .labels .field {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+            align-items: center;
+            min-width: 40%;
+        }
+
+        /*Статус теста*/
+        .labels .div-test-status-checked, .div-test-status-unchecked {
+            background: var(--color);
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            padding: 10px 20px 10px 20px;
+            border-radius: 10px;
+            align-items: center;
+        }
+
+        /*Проверен*/
+        .labels .div-test-status-checked {
+            background-color: green;
+        }
+
+        .labels .div-test-status-unchecked {
+            background-color: orange;
+        }
+
+/*Отзыв*/
+.review {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border-style: solid;
+    border-radius: 10px;
+    border-color: purple;
+    border-width: 5px;
+    padding: 30px;
+}
+
+    .review label {
+        font-size: 20pt;
+    }

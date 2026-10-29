@@ -1,0 +1,162 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Авторизация</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<link rel="stylesheet" href="/styles/styles.css">
+	<style>
+        /*Основной контент*/
+        #main {
+            width: 60%;
+        }
+	</style>
+</head>
+<body>
+
+	<!--Шапка сайта-->
+	<div id="header">
+		<!--Название проекта-->
+		<label id="project-name">Testiler.kz</label>
+
+		<!--Кнопки-->
+		<div class="buttons">
+			<!--Кнопка "Зарегистрироваться"-->
+			<button id="button-register" class="button-style"></button>
+
+			<!--Выбор языка-->
+			<select id="select-language"></select>
+		</div>
+	</div>
+
+	<!--Основной контент-->
+	<div id="main">
+		<!--Форма авторизации-->
+		<div class="form-style">
+			<!--Заголовок формы-->
+			<label id="authorization-title" class="title"></label>
+
+			<!--Логин-->
+			<div class="row">
+				<label id="login" style="width: 30%"></label>
+				<input id="input-login" type="text">
+			</div>
+
+			<!--Пароль-->
+			<div class="row">
+				<label id="password" style="width: 30%"></label>
+				<input id="input-password" type="password">
+			</div>
+
+			<!--Кнопка "Войти"-->
+			<button id="button-log-in" class="large"></button>
+		</div>
+	</div>
+
+	<script src="/js/main.js"></script>
+
+	<script>
+		// Язык по умолчанию
+		let lang = "kk";
+
+        // Языки
+        const select_language = document.getElementById("select-language");
+        languages.forEach((lang) => {
+            const language_option = document.createElement("option");
+            language_option.value = lang["code"];
+            language_option.textContent = lang["language"];
+            select_language.appendChild(language_option);
+        });
+
+        // Изменять содержимое на выбранный язык
+        document.getElementById("select-language").addEventListener("change", () => {
+            lang = select_language.value;
+			localStorage.setItem('lang', lang);
+            document.startViewTransition(() => setContent(lang));
+        });
+
+        // Начальный язык
+        document.startViewTransition(() => setContent(select_language.value));
+
+		// Загрузка содержимого
+		function setContent(lang) {
+            // Заголовок веб-страницы
+            document.title = data[lang]?.authorization ?? "";
+
+			// Кнопка "Зарегистрироваться"
+			const buttonRegister = document.getElementById("button-register");
+			buttonRegister.textContent = data[lang]?.buttonRegister ?? "";
+			buttonRegister.addEventListener('click', () => {
+				window.location.href = 'html/registration.html';
+			});
+
+			// Заголовок "Авторизация"
+			const authorization = document.getElementById("authorization-title");
+			authorization.textContent = data[lang]?.authorization.toUpperCase() ?? "";
+
+			// Логин
+			const login = document.getElementById("login");
+			login.textContent = data[lang]?.login + ":" ?? "";
+
+			// Пароль
+			const password = document.getElementById("password");
+            password.textContent = data[lang]?.password + ":" ?? "";
+
+			// Кнопка "Войти"
+			const buttonLogIn = document.getElementById("button-log-in");
+			buttonLogIn.textContent = data[lang]?.buttonLogIn.toUpperCase() ?? "";
+			buttonLogIn.addEventListener("click", logIn);
+		}
+
+		// Авторизация
+		async function logIn() {
+			// Введенный логин
+			const login = document.getElementById("input-login").value;
+
+			// Введенный пароль
+			const password = document.getElementById("input-password").value;
+
+			// Пустой логин
+			if (login.trim().length == 0) {
+				showMessageBox(data[select_language.value]?.enterLoginError);
+				return;
+			}
+
+			// Пустой пароль
+			if (password.trim().length == 0) {
+				showMessageBox(data[select_language.value]?.enterPasswordError);
+				return;
+			}
+
+			// Данные для авторизации
+			const formData = new FormData();
+            formData.append("login", login);
+            formData.append("password", password);
+
+			// Осуществление аутентификации
+			try {
+				// Отправить запрос
+                const response = await fetch("/api/authentication", {
+                    method: "POST",
+                    body: formData
+                });
+
+				// Открыть главную страницу
+                if (response.ok) {
+                    window.location.replace("/home/main");
+				}
+
+				// Сообщение об ошибке
+				else {
+					const message = await response.text();
+					throw new Error(message);
+				}
+            }
+            catch (error) {
+                showMessageBox(data[lang]?.[error.message] ?? error.message, "error");
+            }
+		}
+
+	</script>
+</body>
+</html>

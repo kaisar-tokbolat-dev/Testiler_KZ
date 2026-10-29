@@ -1,0 +1,1011 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/styles/styles.css">
+
+    <style>
+
+        /*Меню в сетке*/
+        .grid-menu {
+            border-color: purple;
+            border-radius: 20px;
+            border-width: 5px;
+            border-style: solid;
+            width: auto;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: space-between;
+            width: 350px;
+        }
+
+            .grid-menu:hover {
+                background: #2B1354;
+                transition-duration: 0.5s;
+                border-style: solid;
+            }
+
+            /*Заголовок*/
+            .grid-menu .title {
+                font-weight: bold;
+                text-align: center;
+                font-size: 25pt;
+                vertical-align: top;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            /*Подписи*/
+            .grid-menu label, .grid-menu a {
+                font-size: 40pt;
+                text-align: right;
+            }
+
+        /*Сетка тестов*/
+        .test-grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(4, 1fr); /* 4 столбца */
+            margin: 0 auto;
+        }
+
+        /*Круговая диаграмма*/
+        .donut {
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            background: conic-gradient(#B451B5 var(--percent), #e0e0e0 0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+            /*Заполнение*/
+            .donut-center {
+                width: 200px;
+                height: 200px;
+                background: #1B0C36;
+                border-radius: 60%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-weight: bold;
+                font-size: 30pt;
+            }
+
+        /*Основной контент*/
+        #main {
+            width: 1300px;
+        }
+
+        /*Тест в меню*/
+        .test-menu {
+            border-color: purple;
+            border-radius: 10px;
+            border-width: 2px;
+            border-style: dashed;
+            width: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            cursor: pointer;
+        }
+
+            .test-menu:hover {
+                background: #2B1354;
+                transition-duration: 0.5s;
+                border-style: solid;
+            }
+
+        .info-row {
+            min-width: 0;
+        }
+
+            .info-row .label-comment {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 3;
+                line-height: 1em;
+                min-height: 3em;
+                overflow: hidden;
+            }
+
+        /*Контейнер теста*/
+        .test {
+            border-color: purple;
+            border-radius: 20px;
+            border-width: 5px;
+            border-style: solid;
+            padding: 40px;
+            height: 50%;
+            display: flex;
+            flex-direction: row;
+            gap: 40px;
+            flex-grow: 2;
+        }
+
+        /*Контейнер изображения*/
+            .test .image-container {
+                --width: 400px;
+                --height: 300px;
+                flex-grow: 1;
+                position: relative;
+                min-width: var(--width);
+                max-width: var(--width);
+                width: var(--width);
+                min-height: var(--height);
+                max-height: var(--height);
+                height: var(--height);
+                z-index: 0;
+                border-color: purple;
+                border-width: 2px;
+                border-style: dashed;
+                border-radius: 10px;
+                opacity: 1;
+            }
+
+                .test .image-container:hover {
+                    transition: 0.25s;
+                    cursor: pointer;
+                    opacity: 0.5;
+                }
+
+                .test .image-container:active {
+                    opacity: 1;
+                }
+
+            /*Изображение*/
+                .test .image-container img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    border-radius: 10px;
+                }
+
+        /*Информационный блок*/
+        .div-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /*Надписи*/
+        .labels {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+
+            .labels a, .labels label:not(.title) {
+                font-size: 20pt;
+            }
+
+        .row {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+        }
+
+        .field {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+            align-items: center;
+            min-width: 40%;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!--Шапка сайта-->
+    <div id="header"></div>
+
+    <!--Основной контент-->
+    <div id="main"></div>
+
+    <script src="/js/main.js"></script>
+
+    <script>
+
+        // Загрузка контента
+        async function setContent() {
+            // Получить язык
+            const lang = await getSelectedLanguage();
+
+            // Получить имя пользователя
+            const username = await getUsername();
+
+            // Шапка сайта
+            const div_header = document.getElementById("header");
+
+            // Ссылка на главную страницу
+            div_header.appendChild(getLinkToMainPage());
+
+            // Меню личного аккаунта
+            document.getElementById("header").appendChild(divMenuAccount(lang, username, false));
+
+            // Количество тестов
+            const testCount = await getTestCount();
+            // Количество тестов с категориями
+            const testCountWithCategory = await getTestCount(filter = "with");
+            // Соотношение
+            const ratio = Math.round(testCountWithCategory / testCount * 100)
+
+            // Количество категорий
+            const categoryCount = await getCategoryCount();
+
+            // Количество отзывов
+            const reviewCount = await getReviewCount();
+
+            // Количество пользователей
+            const userCount = await getUserCount();
+
+            // Основной контент
+            const main_content = document.getElementById("main");
+
+            // Загрузка выбранной секции
+            loadSection();
+
+            // Загрузка выбранной секции
+            function loadSection() {
+                // Текущая секция
+                const section = window.location.pathname.split("/").pop();
+
+                // Главная
+                if (section === "main") {
+                    document.startViewTransition(() => loadMain());
+                }
+                // 
+                else if (section === "test-view-admin") {
+                    const testId = getTestId();
+                    document.startViewTransition(() => checkTest(testId));
+                }
+            }
+
+            // Главная страница
+            function loadMain() {
+                // Основной контент
+                main_content.innerHTML = `
+                    <!--Категория "Статистические данные"-->
+                    <div id="div-statistics" class="category"></div>
+
+                    <!--Категория "Новые тесты"-->
+                    <div id="div-new-tests" class="category"></div>
+
+                    <!--Категория "Новые отзывы"-->
+                    <div id="div-new-reviews" class="category"></div>
+                `;
+
+                // Отобразить статистические данные
+                showStatistics();
+
+                // Отобразить новые тесты
+                showNewTests();
+
+                // Отобразить новые комментарии
+                showNewReviews();
+            }
+
+            // Получить количество тестов
+            async function getTestCount(filter = "") {
+                try {
+                    const response = await fetch(`/api/admin/test-count?filter=${filter}`);
+                    if (response.ok) {
+                        const result = await response.json();
+                        return result.testCount;
+                    }
+                    else {
+                        const message = await response.text();
+                        throw new Error(message);
+                    }
+                }
+                catch (error) {
+                    showMessageBox(data[lang]?.[error.message] ?? error.message);
+                }
+            }
+
+            // Получить количество категорий
+            async function getCategoryCount() {
+                try {
+                    const response = await fetch(`/api/admin/category-count`);
+                    if (response.ok) {
+                        const result = await response.json();
+                        return result.categoryCount;
+                    }
+                    else {
+                        const message = await response.text();
+                        throw new Error(message);
+                    }
+                }
+                catch (error) {
+                    showMessageBox(data[lang]?.[error.message] ?? error.message);
+                }
+            }
+
+            // Получить количество отзывов
+            async function getReviewCount() {
+                try {
+                    const response = await fetch(`/api/admin/review-count`);
+                    if (response.ok) {
+                        const result = await response.json();
+                        return result.reviewCount;
+                    }
+                    else {
+                        const message = await response.text();
+                        throw new Error(message);
+                    }
+                }
+                catch (error) {
+                    showMessageBox(data[lang]?.[error.message] ?? error.message);
+                }
+            }
+
+            // Получить количество пользователей
+            async function getUserCount() {
+                try {
+                    const response = await fetch(`/api/admin/user-count/`);
+                    if (response.ok) {
+                        const result = await response.json();
+                        return result.userCount;
+                    }
+                    else {
+                        const message = await response.text();
+                        throw new Error(message);
+                    }
+                }
+                catch (error) {
+                    showMessageBox(data[lang]?.[error.message] ?? error.message);
+                }
+            }
+
+            // Отобразить статистические данные
+            function showStatistics() {
+                const div_statistics = document.getElementById("div-statistics");
+                div_statistics.innerHTML = `
+                <!--Название категории-->
+                <div class="category-title">
+                    <label class="xlarge">${data[lang]?.statistics ?? ""}</label>
+                    <div class="animation fa-solid fa-play fa-flip"></div>
+                </div>
+
+                <!-Контейнер "Статистические данные"-->
+                <div style="display: flex; flex-direction: row; gap: 20px;">
+                    <div style="display: grid; gap: 20px; grid-template-columns: repeat(2, 1fr);">
+
+                        <!--Тесты-->
+                        <div class="grid-menu">
+                            <label class="title">${data[lang]?.testCount ?? ""}</label>
+
+                            <!-Количество тестов-->
+                            <label>
+                                <i class="animation fa-regular fa-pen-to-square"></i>
+                                ${testCount}
+                            </label>
+                        </div>
+
+                        <!--Пользователи-->
+                        <div class="grid-menu">
+                            <label class="title">${data[lang]?.categoryCount ?? ""}</label>
+
+                            <label>
+                                <i class="animation fa-regular fa-pen-to-square"></i>
+                                ${categoryCount}
+                            </label>
+                        </div>
+
+                        <!--Отзывы-->
+                        <div class="grid-menu">
+                            <label class="title">${data[lang]?.reviewCount ?? ""}</label>
+
+                            <label>
+                                <i class="animation fa-regular fa-comment-dots"></i>
+                                ${reviewCount}
+                            </label>
+                        </div>
+
+                        <!--Пользователи-->
+                        <div class="grid-menu">
+                            <label class="title">${data[lang]?.userCount ?? ""}</label>
+
+                            <label>
+                                <i class="animation fa-regular fa-user"></i>
+                                ${userCount}
+                            </label>
+                        </div>
+
+                    </div>
+
+                    <!--Количество тестов с категориями-->
+                    <div class="grid-menu">
+                        <label class="title">${data[lang]?.testsWithCategory ?? ""}</label>
+                        <div class="donut" style="--percent: ${ratio}%;">
+                            <div class="donut-center">${ratio}%</div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+
+            // Отобразить новые тесты
+            async function showNewTests() {
+                try {
+                    const response = await fetch(`/api/new-tests/preview`);
+                    if (response.ok) {
+                        const result = await response.json();
+                        const tests = result.tests;
+
+                        // Категория "Новые тесты"
+                        const category_new_tests = document.getElementById("div-new-tests");
+
+                        // Название категории
+                        const div_title_new_tests = document.createElement("div");
+                        div_title_new_tests.className = "category-title";
+                        category_new_tests.appendChild(div_title_new_tests);
+                        // 1. Заголовок
+                        const title_new_tests = document.createElement("label");
+                        title_new_tests.textContent = data[lang]?.newTests ?? "";
+                        title_new_tests.className = "xlarge";
+                        div_title_new_tests.appendChild(title_new_tests);
+                        // 2. Иконка
+                        const icon_new_tests = document.createElement("div");
+                        icon_new_tests.className = "animation fa-solid fa-play fa-flip";
+                        div_title_new_tests.appendChild(icon_new_tests);
+
+                        console.log(tests);
+
+                        // Если тесты существуют
+                        if (tests.length > 0) {
+                            // СЕТКА "НОВЫЕ ТЕСТЫ"
+                            const test_grid = document.createElement("div");
+                            test_grid.className = "test-grid";
+                            category_new_tests.appendChild(test_grid);
+
+                            tests.forEach(test => {
+                                // Контейнер теста
+                                const div_test = showTest(test, lang, false);
+                                // Кнопка "Проверить"
+                                const button_check_test = document.createElement("button");
+                                button_check_test.className = "small wide";
+                                button_check_test.textContent = data[lang]?.check.toUpperCase() ?? "";
+                                button_check_test.addEventListener("click", () => {
+                                    window.location.href = `/home/test-view-admin?testId=${test.id}`;
+                                });
+                                div_test.appendChild(button_check_test);
+                                // Иконка кнопки "Открыть"
+                                const icon_check_test = document.createElement("div");
+                                icon_check_test.className = "fa-solid fa-clipboard-check";
+                                button_check_test.appendChild(icon_check_test);
+
+                                test_grid.appendChild(div_test);
+                            });
+                        }
+                        else {
+                            category_new_tests.appendChild(getInlineMessage(data[lang]?.noNewTests ?? "", "info"));
+                        }
+                    }
+                    else {
+                        const message = await response.text();
+                        throw new Error(message);
+                    }
+                }
+                catch (error) {
+                    showMessageBox(data[lang]?.[error.message] ?? error.message);
+                }
+            }
+
+            // Отобразить новые комментарии
+            async function showNewReviews() {
+                try {
+                    // Категория "Новые тесты"
+                    const category_new_reviews = document.getElementById("div-new-reviews");
+
+                    // Название категории
+                    const div_title_new_reviews = document.createElement("div");
+                    div_title_new_reviews.className = "category-title";
+                    category_new_reviews.appendChild(div_title_new_reviews);
+                    // 1. Заголовок
+                    const title_new_reviews = document.createElement("label");
+                    title_new_reviews.textContent = data[lang]?.newReviews ?? "";
+                    title_new_reviews.className = "xlarge";
+                    div_title_new_reviews.appendChild(title_new_reviews);
+                    // 2. Иконка
+                    const icon_new_reviews = document.createElement("div");
+                    icon_new_reviews.className = "animation fa-solid fa-play fa-flip";
+                    div_title_new_reviews.appendChild(icon_new_reviews);
+
+                    const response = await fetch(`/api/new-reviews/preview`);
+                    if (response.ok) {
+                        const result = await response.json();
+                        const reviews = result.reviews;
+
+                        // Если отзывы существуют
+                        if (reviews.length > 0) {
+                            // Сетка отзывов
+                            const grid_reviews = document.createElement("div");
+                            grid_reviews.style = "display: grid; gap: 20px; grid-template-columns: repeat(3, 1fr);";
+                            category_new_reviews.appendChild(grid_reviews);
+
+                            reviews.forEach((review) => {
+                                // КОНТЕЙНЕР ОТЗЫВА
+                                const div_review = document.createElement("div");
+                                div_review.className = "info-row";
+                                grid_reviews.appendChild(div_review);
+
+                                // Контейнер имени пользователя
+                                const div_username = document.createElement("div");
+                                div_username.className = "info-row-label";
+                                div_review.appendChild(div_username);
+
+                                // 1. Имя пользователя
+                                const label_username = document.createElement("label");
+                                label_username.textContent = review.username;
+                                div_username.appendChild(label_username);
+
+                                // СОДЕРЖИМОЕ
+                                const div_review_content = document.createElement("div");
+                                div_review_content.className = "info-row-content-column";
+                                div_review.appendChild(div_review_content);
+
+                                // Рейтинг
+                                const rating = document.createElement("div");
+                                rating.style = "display: flex; gap: 10px; align-items: center; justify-content: flex-start;";
+                                div_review_content.appendChild(rating);
+
+                                // 2. Звезды
+                                const div_star_rating = showStarRating(review.rating);
+                                rating.appendChild(div_star_rating);
+
+                                // Рейтинг в цифрах
+                                const label_rating = document.createElement("label");
+                                label_rating.textContent = `(${review.rating} / 5)`;
+                                rating.appendChild(label_rating);
+
+                                // 3. Дата создания
+                                const label_date = document.createElement("label");
+                                label_date.textContent = `${data[lang]?.createdDateTime}: ${getDate(review.createdDateTime) }`;
+                                div_review_content.appendChild(label_date);
+
+                                // 4. Текст отзыва
+                                const label_review_text = document.createElement("label");
+                                label_review_text.className = "label-comment";
+                                label_review_text.textContent = review.comment;
+                                div_review_content.appendChild(label_review_text);
+
+                                // 5. Кнопка "Проверить"
+                                const button_check_review = document.createElement("button");
+                                button_check_review.className = "small wide";
+                                button_check_review.textContent = data[lang]?.check.toUpperCase() ?? "";
+                                button_check_review.addEventListener("click", () => {
+                                    document.startViewTransition(async () => await checkReview(review.id));
+                                });
+                                div_review_content.appendChild(button_check_review);
+                            });
+                        }
+                        else {
+                            category_new_reviews.appendChild(getInlineMessage(data[lang]?.noNewReviews ?? "", "info"));
+                        }
+                    }
+                    else {
+                        const message = await response.text();
+                        throw new Error(message);
+                    }
+                }
+                catch (error) {
+                    showMessageBox(data[lang]?.[error.message] ?? error.message);
+                }
+            }
+
+            // Проверить тест
+            async function checkTest(testId) {
+                try {
+                    const response = await fetch(`/api/test-info-view?testId=${testId}`);
+                    if (response.ok) {
+                        const result = await response.json();
+                        const test = result.test;
+                        console.log(test);
+
+                        main_content.innerHTML = "";
+
+                        // КОНТЕЙНЕР ЗАГОЛОВКА КАТЕГОРИИ
+                        const div_category_title = document.createElement("div");
+                        div_category_title.className = "category-title";
+                        div_category_title.addEventListener("click", () => {
+                            const category_name = test.category?.name ?? "uncategorized";
+                            window.location.href = `/home/tests-by-category?category=${category_name}`;
+                        });
+                        main_content.appendChild(div_category_title);
+
+                        // 1. Заголовок категории
+                        const label_category = document.createElement("label");
+                        label_category.textContent = test.category?.text ?? data[lang]?.uncategorized ?? "";
+                        label_category.className = "xlarge";
+                        label_category.style = "align-self: flex-start;";
+                        div_category_title.appendChild(label_category);
+
+                        // 2. Иконка категории
+                        const icon_category_link = document.createElement("div");
+                        icon_category_link.className = "animation fa-solid fa-play fa-flip";
+                        div_category_title.appendChild(icon_category_link);
+
+                        // Контейнер теста
+                        const div_test = document.createElement("div");
+                        div_test.className = "test";
+                        main_content.appendChild(div_test);
+
+                        // Контейнер изображения
+                        const div_image_container = document.createElement("div");
+                        div_image_container.className = "image-container";
+                        div_test.appendChild(div_image_container);
+
+                        // Изображение теста
+                        const image = document.createElement("img");
+                        image.src = `/api/test-image/${test.imageFileName}`;
+                        div_image_container.appendChild(image);
+
+                        // Отобразить изображение при нажатии на контейнер изображения
+                        div_image_container.addEventListener("click", () => {
+                            const img = document.createElement("img");
+                            img.src = image.src;
+                            const modal = dialogShowImage(img);
+                            document.body.appendChild(modal);
+                            document.startViewTransition(() => modal.showModal());
+                        });
+
+                        // ИНФОРМАЦИОННЫЙ БЛОК
+                        const div_info = document.createElement("div");
+                        div_info.className = "div-info";
+                        div_test.appendChild(div_info);
+
+                        // Заголовок
+                        const title = document.createElement("label");
+                        title.textContent = test.title;
+                        title.className = "title";
+                        div_info.appendChild(title);
+
+                        // Надписи
+                        const div_labels = document.createElement("label");
+                        div_labels.className = "labels";
+                        div_info.appendChild(div_labels);
+
+                        // 1. СТРОКА ДАТЫ ПУБЛИКАЦИИ
+                        const div_date_row = document.createElement("div");
+                        div_date_row.className = "row";
+                        div_labels.appendChild(div_date_row);
+                        // 1.1. КОНТЕЙНЕР ДАТЫ ПУБЛИКАЦИИ
+                        const div_date = document.createElement("div");
+                        div_date.className = "field";
+                        div_date_row.appendChild(div_date);
+                        // Иконка даты
+                        var icon_date = document.createElement("div");
+                        icon_date.className = "fa-solid fa-calendar";
+                        div_date.appendChild(icon_date);
+                        // Надпись "Дата публикации"
+                        const label_date = document.createElement("label");
+                        label_date.textContent = data[lang]?.publishedDateTime + ":" ?? "";
+                        div_date.appendChild(label_date);
+                        // 1.2. Дата публикации
+                        const date = document.createElement("label");
+                        date.textContent = getDate(test.publishedDateTime);
+                        div_date_row.appendChild(date);
+
+                        // 2. СТРОКА АВТОРА
+                        const div_author_row = document.createElement("div");
+                        div_author_row.className = "row";
+                        div_labels.appendChild(div_author_row);
+                        // 2.1. КОНТЕЙНЕР АВТОРА
+                        const div_author = document.createElement("div");
+                        div_author.className = "field";
+                        div_author_row.appendChild(div_author);
+                        // Иконка автора
+                        var icon_author = document.createElement("div");
+                        icon_author.className = "fa-solid fa-user-pen";
+                        div_author.appendChild(icon_author);
+                        // Надпись "Автор"
+                        const label_author = document.createElement("label");
+                        label_author.textContent = data[lang]?.author + ":" ?? "";
+                        div_author.appendChild(label_author);
+                        // 2.2. Автор
+                        const author = document.createElement("a");
+                        author.textContent = test.username;
+                        div_author_row.appendChild(author);
+
+                        // 3. СТРОКА ОПИСАНИЯ
+                        const div_description_row = document.createElement("div");
+                        div_description_row.className = "row";
+                        div_labels.appendChild(div_description_row);
+                        // 3.1. КОНТЕЙНЕР ОПИСАНИЯ
+                        const div_description = document.createElement("div");
+                        div_description.className = "field";
+                        div_description_row.appendChild(div_description);
+                        // Иконка описания
+                        var icon_description = document.createElement("div");
+                        icon_description.className = "fa-solid fa-file-lines";
+                        div_description.appendChild(icon_description);
+                        // Надпись "Описание"
+                        const label_description = document.createElement("label");
+                        label_description.textContent = data[lang]?.testDescription + ":" ?? "";
+                        div_description.appendChild(label_description);
+                        // 3.2. Описание
+                        const description = document.createElement("label");
+                        description.textContent = test.description;
+                        div_description_row.appendChild(description);
+
+                        // 4. КНОПКИ
+                        const div_test_buttons = document.createElement("div");
+                        div_test_buttons.className = "buttons";
+                        div_info.appendChild(div_test_buttons);
+
+                        // 5. Вопросы
+                        const div_questions = document.createElement("div");
+                        div_questions.className = "form-style";
+                        main_content.appendChild(div_questions);
+                        const questions = test.questions;
+                        // Вопросы
+                        questions.forEach((q, i) => {
+                            // Контейнер вопроса
+                            const div_question = document.createElement("div");
+                            div_question.className = "question";
+                            div_questions.appendChild(div_question);
+
+                            // Порядок вопроса
+                            const label_question_order = document.createElement("label");
+                            label_question_order.id = q.id;
+                            label_question_order.textContent = `${data[lang]?.question} №${i + 1}`;
+                            label_question_order.style.fontWeight = "bold";
+                            div_question.appendChild(label_question_order);
+
+                            // Текст вопроса
+                            const label_question_text = document.createElement("label");
+                            label_question_text.textContent = q.text;
+                            div_question.appendChild(label_question_text);
+
+                            // Контейнер ответов
+                            const div_answers_collection = document.createElement("div");
+                            div_answers_collection.className = "grid-answers";
+                            div_question.appendChild(div_answers_collection);
+
+                            // Ответы
+                            q.answers.forEach(a => {
+                                // 1. Ответ
+                                const div_answer = document.createElement("div");
+                                div_answers_collection.appendChild(div_answer);
+
+                                // Маркированный список для элемента выбора правильного ответа
+                                const ul_selection_control = document.createElement("ul");
+                                div_answer.appendChild(ul_selection_control);
+
+                                // Элемент маркированного списка
+                                const li_selection_control = document.createElement("li");
+                                ul_selection_control.appendChild(li_selection_control);
+
+                                // Элемент выбора правильного ответа
+                                const selection_control_answer = document.createElement("input");
+                                selection_control_answer.id = "selection-control-" + a.id;
+                                selection_control_answer.name = q.id;
+                                selection_control_answer.type = questionTypes.find((x, i) => i == q.type);
+                                selection_control_answer.style.pointerEvents = "none";
+                                li_selection_control.appendChild(selection_control_answer);
+
+                                // Верный ли ответ
+                                if (a.isCorrect) {
+                                    selection_control_answer.style.accentColor = "green";
+                                    selection_control_answer.checked = true;
+                                }
+
+                                // Текст "Верный ответ"
+                                const label_correct_answer = document.createElement("label");
+                                label_correct_answer.textContent = a.text
+                                label_correct_answer.className = "xmedium";
+                                li_selection_control.appendChild(label_correct_answer);
+                            });
+
+                            // Отображение типа вопроса
+                            const label_question_type = document.createElement("label");
+                            label_question_type.className = "medium";
+                            label_question_type.textContent = data[lang][questionTypes[q.type]] ?? "";
+                            div_question.appendChild(label_question_type);
+                        });
+
+                        // Кнопки
+                        const div_buttons = document.createElement("div");
+                        div_buttons.className = "buttons";
+                        main_content.appendChild(div_buttons);
+                        // 1. Кнопка "Отклонить"
+                        const button_reject = document.createElement("button");
+                        button_reject.textContent = data[lang]?.reject.toUpperCase() ?? "";
+                        button_reject.addEventListener("click", async () => {
+                            try {
+                                const response = await fetch(`/api/reject-test?testId=${testId}`, {
+                                    method: "POST"
+                                });
+                                if (response.ok) {
+                                    main_content.innerHTML = "";
+                                    showMessageBox("success", "success");
+                                    loadMain();
+                                }
+                                else {
+                                    const message = await response.text();
+                                    throw new Error(message);
+                                }
+                            }
+                            catch (error) {
+                                showMessageBox(data[lang]?.[error.message] ?? error.message);
+                            }
+                        });
+                        div_buttons.appendChild(button_reject);
+                        // 2. Кнопка "Утвердить"
+                        const button_approve = document.createElement("button");
+                        button_approve.textContent = data[lang]?.accept.toUpperCase() ?? "";
+                        button_approve.addEventListener("click", async () => {
+                            try {
+                                const response = await fetch(`/api/accept-test?testId=${testId}`, {
+                                    method: "POST"
+                                });
+                                if (response.ok) {
+                                    main_content.innerHTML = "";
+                                    showMessageBox("success", "success");
+                                    loadMain();
+                                }
+                                else {
+                                    const message = await response.text();
+                                    throw new Error(message);
+                                }
+                            }
+                            catch (error) {
+                                showMessageBox(data[lang]?.[error.message] ?? error.message);
+                            }
+                        });
+                        div_buttons.appendChild(button_approve);
+                    }
+                    else {
+                        const message = await response.text();
+                        throw new Error(message);
+                    }
+                }
+                catch (error) {
+                    showMessageBox(data[lang]?.[error.message] ?? error.message);
+                }
+            }
+
+            // Проверить комментарий
+            async function checkReview(reviewId) {
+                try {
+                    const response = await fetch(`/api/review?reviewId=${reviewId}`);
+                    if (response.ok) {
+                        const result = await response.json();
+                        const review = result.review;
+                        console.log(review);
+
+                        // Очистить контент
+                        main_content.innerHTML = "";
+
+                        // Заголовок
+                        const label_title = document.createElement("label");
+                        label_title.textContent = data[lang]?.review.toUpperCase() ?? "";
+                        label_title.className = "title";
+                        main_content.appendChild(label_title);
+
+                        // КОНТЕЙНЕР ОТЗЫВА
+                        const div_review = document.createElement("div");
+                        div_review.className = "info-row";
+                        main_content.appendChild(div_review);
+
+                        // Контейнер имени пользователя
+                        const div_username = document.createElement("div");
+                        div_username.className = "info-row-label";
+                        div_review.appendChild(div_username);
+
+                        // 1. Имя пользователя
+                        const label_username = document.createElement("label");
+                        label_username.textContent = review.username;
+                        div_username.appendChild(label_username);
+
+                        // СОДЕРЖИМОЕ
+                        const div_review_content = document.createElement("div");
+                        div_review_content.className = "info-row-content-column";
+                        div_review.appendChild(div_review_content);
+
+                        // Рейтинг
+                        const rating = document.createElement("div");
+                        rating.style = "display: flex; gap: 10px; align-items: center; justify-content: flex-start;";
+                        div_review_content.appendChild(rating);
+
+                        // 2. Звезды
+                        const div_star_rating = showStarRating(review.rating);
+                        rating.appendChild(div_star_rating);
+
+                        // Рейтинг в цифрах
+                        const label_rating = document.createElement("label");
+                        label_rating.textContent = `(${review.rating} / 5)`;
+                        rating.appendChild(label_rating);
+
+                        // 3. Дата создания
+                        const label_date = document.createElement("label");
+                        label_date.textContent = getDate(review.createdDateTime);
+                        div_review_content.appendChild(label_date);
+
+                        // 4. Текст отзыва
+                        const label_review_text = document.createElement("label");
+                        label_review_text.textContent = review.comment;
+                        div_review_content.appendChild(label_review_text);
+
+                        // 5. КНОПКИ
+                        const button_review_buttons = document.createElement("div");
+                        button_review_buttons.className = "buttons";
+                        div_review_content.appendChild(button_review_buttons);
+                        // 5.1. Кнопка "Удалить"
+                        const button_delete_review = document.createElement("button");
+                        button_delete_review.textContent = data[lang]?.delete ?? "";
+                        button_delete_review.addEventListener("click", async () => {
+                            try {
+                                const response = await fetch(`/api/delete-review?reviewId=${review.id}`);
+                                if (response.ok) {
+                                    document.startViewTransition(() => {
+                                        main_content.innerHTML = "";
+                                        showMessageBox("success", "success");
+                                        loadMain();
+                                    });
+                                }
+                                else {
+                                    const message = await response.text();
+                                    throw new Error(message);
+                                }
+                            }
+                            catch (error) {
+                                showMessageBox(data[lang]?.[error.message] ?? error.message);
+                            }
+                        });
+                        button_review_buttons.appendChild(button_delete_review);
+                        // 5.2. Кнопка "Опубликовать"
+                        const div_publish_review = document.createElement("button");
+                        div_publish_review.textContent = data[lang]?.publishReview ?? "";
+                        div_publish_review.addEventListener("click", async () => {
+                            try {
+                                const response = await fetch(`/api/publish-review?reviewId=${review.id}`);
+                                if (response.ok) {
+                                    document.startViewTransition(() => {
+                                        main_content.innerHTML = "";
+                                        showMessageBox("success", "success");
+                                        loadMain();
+                                    });
+                                }
+                                else {
+                                    const message = await response.text();
+                                    throw new Error(message);
+                                }
+                            }
+                            catch (error) {
+                                showMessageBox(data[lang]?.[error.message] ?? error.message);
+                            }
+                        });
+                        button_review_buttons.appendChild(div_publish_review);
+                    }
+                    else {
+                        const message = await response.text();
+                        throw new Error(message);
+                    }
+                }
+                catch (error) {
+                    showMessageBox(data[lang]?.[error.message] ?? error.message);
+                }
+            }
+        }
+
+        // Загрузка контента
+        setContent();
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Тіркелу | Регистрация</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<link rel="stylesheet" href="/styles/styles.css">
+	<style>
+		/*Основной контент*/
+		#main {
+			width: 60%;
+		}
+	</style>
+</head>
+<body>
+
+	<!--Шапка сайта-->
+	<div id="header">
+		<!--Название проекта-->
+		<label id="project-name">Testiler.kz</label>
+
+		<!--Кнопки-->
+		<div class="buttons">
+			<!--Кнопка "Войти"-->
+			<button id="button-log-in" class="button-style"></button>
+
+			<!--Выбор языка-->
+			<select id="select-language" aria-label="Выбор языка">
+				<option value="kk">Қазақша</option>
+				<option value="ru">Русский</option>
+			</select>
+		</div>
+	</div>
+
+	<!--Основной контент-->
+	<div id="main">
+		<!--Форма регистрации-->
+		<div id="registration-form" class="form-style">
+
+			<!--Заголовок формы-->
+			<label id="registration-title" class="title"></label>
+
+			<!--Имя-->
+			<div class="row">
+				<label id="username"></label>
+				<input id="input-username" class="input-style" type="text">
+			</div>
+
+			<!--Логин-->
+			<div class="row">
+				<label id="login"></label>
+				<input id="input-login" class="input-style" type="text">
+			</div>
+
+			<!--Пароль-->
+			<div class="row">
+				<label id="password"></label>
+				<input id="input-password" class="input-style" type="password">
+			</div>
+
+			<!--Кнопка "Зарегистрироваться"-->
+			<button id="button-register" class="large"></button>
+		</div>
+	</div>
+
+	<script src="/js/main.js"></script>
+
+	<!--Скрипт загрузки контента-->
+	<script>
+
+		// Загрузка контента
+		function setContent(lang) {
+			// Заголовок веб-страницы
+            document.title = data[lang]?.registration ?? "";
+
+			// Кнопка "Войти"
+			const buttonLogIn = document.getElementById("button-log-in");
+			buttonLogIn.textContent = data[lang]?.buttonLogIn ?? "";
+			buttonLogIn.addEventListener('click', () => {
+				window.location.href = "/";
+			});
+
+			// Заголовок "Регистрация"
+			const registration = document.getElementById("registration-title");
+			registration.textContent = data[lang]?.registration.toUpperCase() ?? "";
+
+			// Имя
+			const username = document.getElementById("username");
+            username.textContent = data[lang]?.username + ":" ?? "";
+
+			// Логин
+			const login = document.getElementById("login");
+            login.textContent = data[lang]?.login + ":" ?? "";
+
+			// Пароль
+			const password = document.getElementById("password");
+            password.textContent = data[lang]?.password + ":" ?? "";
+
+			// Кнопка "Зарегистрироваться"
+			const buttonRegister = document.getElementById("button-register");
+			buttonRegister.textContent = data[lang]?.buttonRegister.toUpperCase() ?? "";
+			buttonRegister.addEventListener("click", registrate);
+		}
+
+		// Начальный язык
+		const lang = localStorage.getItem('lang') || 'kk';
+		const selectLanguage = document.getElementById("select-language");
+		selectLanguage.value = lang;
+        document.startViewTransition(() => setContent(lang));
+
+		// Изменять содержимое на выбранный язык
+		document.getElementById("select-language").addEventListener("change", () => {
+			const lang = selectLanguage.value;
+			localStorage.setItem('lang', lang);
+            document.startViewTransition(() => setContent(lang));
+		});
+
+		// Зарегистрироваться
+		async function registrate() {
+			// Имя пользователя
+            const username = document.getElementById("input-username").value.trim();
+
+			// Логин
+            const login = document.getElementById("input-login").value.trim();
+
+			// Пароль
+            const password = document.getElementById("input-password").value.trim();
+
+			// Если имя пользователя пустое
+			if (username.length == 0) {
+				showMessageBox(data[selectLanguage.value]?.enterUsernameError);
+				return;
+			}
+
+			// Если логин пустой
+			if (login.length == 0) {
+				showMessageBox(data[selectLanguage.value]?.enterLoginError);
+                return;
+			}
+
+			// Если пароль пустой
+			if (password.length == 0) {
+				showMessageBox(data[selectLanguage.value]?.enterPasswordError);
+                return;
+			}
+
+			// Данные для регистрации
+			const formData = new FormData();
+            formData.append("username", username);
+            formData.append("login", login);
+            formData.append("password", password);
+            formData.append("selectedLanguage", localStorage.getItem('lang'));
+
+			// Отправка запроса
+			try {
+				const response = await fetch("/api/registration", {
+					method: "POST",
+                    body: formData
+				});
+				// УСпешная регистрация
+				if (response.ok) {
+					// Удалить форму регистрации
+					document.getElementById("registration-form").remove();
+
+					// Удалить кнопку авторизации
+					document.getElementById("button-log-in").remove();
+
+					// Удалить выбор языка
+					document.getElementById("select-language").remove();
+
+					// Сообщение об успешной регистрации
+					const div_success_message = getInlineMessage(data[selectLanguage.value]?.successRegistrationLabel, "success");
+					
+					// Кнопка авторизации
+					const button_log_in = document.createElement("button");
+					button_log_in.textContent = data[selectLanguage.value]?.buttonLogIn;
+					button_log_in.addEventListener('click', () => {
+						window.location.href = "/";
+					});
+                    div_success_message.appendChild(button_log_in);
+
+                    document.getElementById("main").appendChild(div_success_message);
+				}
+                else {
+                    const message = await response.text();
+                    throw new Error(message);
+                }
+            }
+			catch (error) {
+                showMessageBox(data[lang]?.[error.message] ?? error.message, "error", 5000);
+            }
+		}
+
+	</script>
+</body>
+</html>

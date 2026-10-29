@@ -1,0 +1,531 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/styles/styles.css">
+
+    <style>
+        .buttons-div {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 40px;
+        }
+
+            .buttons-div button {
+                width: 100%;
+            }
+
+        #main {
+            display: flex;
+            flex-direction: column;
+            gap: 80px;
+            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!--Шапка сайта-->
+    <div id="header"></div>
+
+    <!--Основной контент-->
+    <div id="main"></div>
+
+    <script src="/js/main.js"></script>
+
+    <script>
+
+        // Загрузка содержимого
+        async function setContent() {
+            // Получить язык
+            const lang = await getSelectedLanguage();
+
+            // Получить имя пользователя
+            const username = await getUsername();
+
+            // Шапка сайта
+            const div_header = document.getElementById("header");
+
+            // Ссылка на главную страницу
+            div_header.appendChild(getLinkToMainPage());
+
+            // Меню личного аккаунта
+            document.getElementById("header").appendChild(divMenuAccount(lang, username));
+
+            // Основной контент
+            const main_content = document.getElementById("main");
+
+            // Получить тест, если он существует
+            await getTest();
+
+            // Получить тест
+            async function getTest() {
+                try {
+                    // ID теста
+                    const testId = getTestId();
+
+                    // Если существует ID
+                    if (testId) {
+                        // Запрос
+                        const response = await fetch(`/api/create-test?testId=${testId}`);
+
+                        // Получить тест
+                        if (response.ok) {
+                            // Тест
+                            const test = await response.json();
+                            // Загрузка формы теста
+                            document.startViewTransition(async () => {
+                                await loadTestForm(test);
+                            });
+                        }
+                        else {
+                            const message = await response.text();
+                            throw new Error(message);
+                        }
+                    }
+                    else {
+                        // Отобразить пустую форму
+                        document.startViewTransition(async () => {
+                            await loadTestForm();
+                        });
+                    }
+                }
+                catch (error) {
+                    // Отобразить пустую форму
+                    document.startViewTransition(async () => {
+                        await loadTestForm();
+                    });
+
+                    // Сообщение об ошибке
+                    showMessageBox(error.message, "error");
+                }
+            }
+
+            // Загрузка формы теста
+            async function loadTestForm(test = null) {
+                // Форма теста
+                const div_test_form = document.createElement("div");
+                div_test_form.className = "form-style wide";
+                main_content.appendChild(div_test_form);
+
+                // Содержимое
+                div_test_form.innerHTML = `
+                    <!--Заголовок-->
+                    <label id="label-test-creating" class="title">${data[lang]?.testCreating.toUpperCase() ?? ""}</label>
+
+                    <!--Заголовок теста-->
+                    <div class="row">
+                        <label id="label-test-title">${data[lang]?.testTitle + ":" ?? ""}</label>
+                        <input id="input-test-title" type="text">
+                    </div>
+
+                    <!--Категория-->
+                    <div class="row">
+                        <label id="label-test-category">${data[lang]?.testCategory + ":" ?? ""}</label>
+                        <select id="select-test-category"></select>
+                    </div>
+
+                    <!--Описание-->
+                    <div class="row">
+                        <label id="label-test-description">${data[lang]?.testDescription + ":" ?? ""}</label>
+                        <textarea id="textarea_test_description"></textarea>
+                    </div>
+
+                    <!--Изображение-->
+                    <div class="row">
+                        <label>${data[lang]?.testImage + ":" ?? ""}</label>
+
+                        <div style="display: flex; flex-direction: row; gap: 20px; justify-content: flex-end; width: 100%; align-items: center; height: 100px;">
+                            <!--Кнопка загрузки файла (скрыта)-->
+                            <input id="input-upload-image" type="file" accept="image/jpeg, image/png, image/webp"/>
+
+                            <!--Превью загруженного изображения-->
+                            <div id="preview-container" class="preview-container" style="display: none;">
+                                <img id="preview" class="preview"/>
+                            </div>
+                          
+                            <!--Кнопка "Загрузить"-->
+                            <button id="button-upload-image">${data[lang]?.upload ?? ""}</button>
+                        </div>
+                    </div>
+
+                    <!--Кнопки-->
+                    <div class="buttons-div">
+
+                        <!--Кнопка "Отмена"-->
+                        <button id="button-cancel">${data[lang]?.cancel ?? ""}</button>
+
+                        <!--Кнопка "Далее"-->
+                        <button id="button-next">${data[lang]?.next ?? ""}</button>
+                    </div>
+                `;
+
+                // Категории
+                const categories = await getCategories();
+                categories.sort((a, b) => a.text.localeCompare(b.text));
+                console.log(categories);
+
+                // Загрузка категорий
+                const select_category = document.getElementById("select-test-category");
+                // Пустая категория
+                const empty_option = document.createElement("option");
+                //empty_option.value = "";
+                //empty_option.textContent = data[lang]?.categoryNotSelected ?? "";
+                //select_category.appendChild(empty_option);
+                categories.forEach((category) => {
+                    const option = document.createElement("option");
+                    option.value = category.id;
+                    if (category.name === "uncategorized") {
+                        option.textContent = `${data[lang]?.categoryNotSelected ?? category.name}`;
+                    }
+                    else {
+                        option.textContent = `${category.text} (${category.language})`;
+                    }
+                    select_category.appendChild(option);
+                });
+                select_category.selectedIndex = categories
+                    .map((c, index) => ({ name: c.name, index }))
+                    .filter(c => c.name === "uncategorized")
+                    [0].index;
+
+                // Скрытая кнопка загрузки файла
+                const input_upload_image = document.getElementById("input-upload-image");
+                input_upload_image.style = "display: none";
+
+                // Кнопка "Загрузить изображение"
+                const button_upload_image = document.getElementById("button-upload-image");
+                button_upload_image.addEventListener("click", () => {
+                    input_upload_image.click();
+                });
+
+                // Контейнер изображения
+                const div_preview_container = document.getElementById("preview-container");
+
+                // Превью изображения
+                const img_preview = document.getElementById("preview");
+
+                // Отображение загруженного изображения
+                input_upload_image.addEventListener("change", () => {
+                    document.startViewTransition(() => {
+                        // Файл изображения
+                        const file = input_upload_image.files[0];
+
+                        // Проверка типа изображения
+                        if (file && allowed_image_extensions.includes(file.type) == false) {
+                            input_upload_image.value = "";
+                            showMessageBox("errorImageType", "error");
+                            return;
+                        }
+
+                        // Отобразить контейнер изображения
+                        div_preview_container.style.display = "inline-block";
+
+                        // Временная ссылка на файл
+                        const objectUrl = URL.createObjectURL(file);
+
+                        // Отобразить изображение
+                        img_preview.src = objectUrl;
+                        img_preview.style.display = "inline-block";
+
+                        // Изменить название кнопки
+                        button_upload_image.textContent = data[lang]?.replace ?? "";
+                    });
+                });
+
+                // Отобразить изображение при нажатии на контейнер изображения
+                div_preview_container.addEventListener("click", () => {
+                    const img = document.createElement("img");
+                    img.src = img_preview.src;
+                    const modal = dialogShowImage(img);
+                    document.body.appendChild(modal);
+                    document.startViewTransition(() => modal.showModal());
+                });
+
+                // Отслеживание изменений в интерактивных полях
+                let titleChanged = false;
+                let categoryChanged = false;
+                let descriptionChanged = false;
+                let imageChanged = false;
+
+                main_content.addEventListener("input", (event) => {
+                    // Было изменено название
+                    if (event.target && event.target.id === "input-test-title") {
+                        titleChanged = true;
+                    }
+                    // Была изменена категория
+                    if (event.target && event.target.id === "select-test-category") {
+                        categoryChanged = true;
+                    }
+                    // Было изменено описание
+                    if (event.target && event.target.id === "textarea_test_description") {
+                        descriptionChanged = true;
+                    }
+                    // Было изменено изображение
+                    if (event.target && event.target.id === "input-upload-image") {
+                        imageChanged = true;
+                    }
+                });
+
+                // Предотвращение перезагрузки при наличии измененных параметров в форме
+                window.addEventListener('beforeunload', (event) => {
+                    // Если был изменен один параметр
+                    if (titleChanged || categoryChanged || descriptionChanged || imageChanged) {
+                        event.preventDefault();
+                        event.returnValue = '';
+                    }
+                });
+
+                // Кнопка "Отмена"
+                const button_cancel = document.getElementById("button-cancel");
+                button_cancel.addEventListener("click", async () => {
+                    // Если был изменен один параметр
+                    if (titleChanged || categoryChanged || descriptionChanged || imageChanged) {
+                        // Модальное окно
+                        const modal = document.createElement("dialog");
+
+                        // Текст вопроса
+                        var label_question = "";
+
+                        // Если был изменен текущий тест
+                        if (test) {
+                            label_question = data[lang]?.deleteTestChanges ?? "";
+                        }
+                        // Если был изменен новый тест
+                        else {
+                            label_question = data[lang]?.deleteCurrentTestQuestion ?? "";
+                        }
+
+                        modal.innerHTML = `
+                            <!--Основной контент-->
+                            <div class="content">
+                                <!--Текст-->
+                                <label>${label_question}</label>
+                                <!--Кнопки-->
+                                <div class="buttons">
+                                    <!--Кнопка "Да"-->
+                                    <button id="button-confirm">${data[lang]?.yes ?? ""}</button
+                                    <!--Кнопка "Нет"-->
+                                    <button id="button-decline">${data[lang]?.no ?? ""}</button>
+                                </div>
+                            </div>
+                        `;
+                        document.body.appendChild(modal);
+
+                        // Удаление окна из DOM
+                        modal.addEventListener("close", () => {
+                            document.startViewTransition(() => {
+                                modal.remove();
+                            });
+                        });
+
+                        // Назначение кнопок
+                        modal.addEventListener("click", (event) => {
+                            // Да
+                            if (event.target && event.target.id === "button-confirm") {
+                                titleChanged = false;
+                                categoryChanged = false;
+                                descriptionChanged = false;
+                                imageChanged = false;
+
+                                window.history.back();
+                            }
+                            // Нет
+                            else if (event.target && event.target.id === "button-decline") {
+                                document.startViewTransition(() => modal.close());
+                            }
+                        });
+
+                        // Показать модальное окно
+                        document.startViewTransition(() => modal.showModal());
+                    }
+                    else {
+                        window.history.back();
+                    }
+                });
+
+                // Кнопка "Далее"
+                const button_next = document.getElementById("button-next");
+                button_next.addEventListener("click", async () => {
+
+                    // Если существующй тест не был изменен -> открыть следующую страницу
+                    if (test && !(titleChanged || categoryChanged || descriptionChanged || imageChanged)) {
+                        window.location.href = `/questions?testId=${test.id}`;
+                    }
+
+                    // Заголовок теста
+                    const test_title = document.getElementById("input-test-title").value.trim();
+                    // Категория теста
+                    const test_category = document.getElementById("select-test-category").value;
+                    // Описание теста
+                    const test_description = document.getElementById("textarea_test_description").value.trim();
+                    // Изображение
+                    const test_image = document.getElementById("input-upload-image").files[0];
+
+                    // Обновить существующий тест
+                    if (test) {
+                        // Данные для отправки
+                        const formData = new FormData();
+
+                        // ID теста
+                        formData.append("testId", test.id);
+
+                        // Заголовок
+                        if (titleChanged) {
+                            // Если заголовок пустой
+                            if (test_title.length == 0) {
+                                titleChanged = false;
+                                showMessageBox(data[lang]?.enterTitle ?? "", "error");
+                                return;
+                            }
+                            formData.append("title", test_title);
+                        }
+                        // Категория
+                        if (categoryChanged) {
+                            // Если категория пустая
+                            if (test_category.length == 0) {
+                                categoryChanged = false;
+                                showMessageBox(data[lang]?.selectCategory ?? "", "error");
+                                return;
+                            }
+                            formData.append("categoryId", test_category);
+                        }
+                        // Описание
+                        if (descriptionChanged) {
+                            // Если описание пустое
+                            if (test_description.length == 0) {
+                                descriptionChanged = false;
+                                showMessageBox(data[lang]?.enterDescription ?? "", "error");
+                                return;
+                            }
+                            formData.append("description", test_description);
+                        }
+                        // Изображение
+                        if (imageChanged) {
+                            // Если изображение пустое
+                            if (!test_image) {
+                                imageChanged = false;
+                                showMessageBox(data[lang]?.uploadImage ?? "", "error");
+                                return;
+                            }
+                            formData.append("image", test_image);
+                        }
+
+                        console.log(Object.fromEntries(formData.entries()));
+                   
+                        // Запрос
+                        const response = await fetch("/api/change-test", {
+                            method: "POST",
+                            body: formData
+                        });
+
+                        // Открыть страницу добавления вопросов
+                        if (response.ok) {
+                            titleChanged = false;
+                            categoryChanged = false;
+                            descriptionChanged = false;
+                            imageChanged = false;
+
+                            window.location.href = `/questions?testId=${test.id}`;
+                        }
+                        // Сообщение об ошибке
+                        else {
+                            const message = await response.text();
+                            showMessageBox(message, "error");
+                        }
+                    }
+                    // Отправить новый тест
+                    else {
+
+                        // Пустой заголовок
+                        if (test_title.length == 0) {
+                            showMessageBox(data[lang]?.enterTitle ?? "", "error");
+                            return;
+                        }
+                        // Пустое описание
+                        if (test_description.length == 0) {
+                            showMessageBox(data[lang]?.enterDescription ?? "", "error");
+                            return;
+                        }
+                        // Проверка на наличие изображения
+                        if (!test_image) {
+                            showMessageBox(data[lang]?.uploadImage ?? "", "error");
+                            return;
+                        }
+
+                        // Данные для отправки
+                        const formData = new FormData();
+                        formData.append("title", test_title);
+                        formData.append("categoryId", test_category);
+                        formData.append("description", test_description);
+                        formData.append("image", test_image);
+
+                        console.log(Object.fromEntries(formData.entries()));
+
+                        // Запрос
+                        const response = await fetch("/api/save-test", {
+                            method: "POST",
+                            body: formData
+                        });
+
+                        // Открыть страницу добавления вопросов
+                        if (response.ok) {
+                            titleChanged = false;
+                            categoryChanged = false;
+                            descriptionChanged = false;
+                            imageChanged = false;
+
+                            const result = await response.json();
+                            window.location.href = `/questions?testId=${result.testId}`;
+                        }
+                        // Сообщение об ошибке
+                        else {
+                            const message = await response.text();
+                            showMessageBox(message, "error");
+                        }
+                    }
+                });
+
+                // Отобразить тест, если существует
+                if (test) {
+                    console.log(test);
+
+                    // Заголовок теста
+                    document.getElementById("input-test-title").value = test.title;
+
+                    // Категория
+                    const select_test_category = document.getElementById("select-test-category");
+                    if (test.categoryId) {
+                        select_test_category.value = test.categoryId;
+                    }
+                    else {
+                        select_test_category.value = "";
+                    }
+
+                    // Описание
+                    document.getElementById("textarea_test_description").value = test.description;
+
+                    // Отобразить контейнер изображения
+                    document.getElementById("preview-container").style.display = "inline-block";
+
+                    // Отобразить изображение
+                    const img_preview = document.getElementById("preview");
+                    img_preview.src = `/api/test-image/${test.imageFileName}`;
+                    img_preview.style.display = "inline-block";
+
+                    // Изменить название кнопки
+                    button_upload_image.textContent = data[lang]?.replace ?? "";
+                }
+            }
+        }
+
+        // Загрузка содержимого
+        setContent();
+    </script>
+</body>
+</html>
